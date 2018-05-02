@@ -369,219 +369,221 @@ input:
 line: /* map stack operation or expression*/
   '\n'
 | assign ';'					{ check=0; }
-| print ';'						{ check=0; }
+| print ';'					{ check=0; }
 | println ';'					{ check=0; }
-| if									{ check=0;
-												node *tmp = (node*)malloc(sizeof(node));
-												sprintf(tmp->data , "\nlabel%d:\n",pop());
-												//printf("\tmov\tr%d,eax\n",reg);
-												tmp->next = NULL;
-												if(hcode == NULL){
-													hcode = tmp;
-													tcode = tmp;
-												}
-												else{
-													tcode->next = tmp;
-													tcode = tcode->next;
-												} 
-											}
-| loop								{ check=0;
-												node *tmp = (node*)malloc(sizeof(node));
-												int pop1=pop();
-												int pop2=pop();
-												sprintf(tmp->data , "\tpop\tecx\n\tloop\tlabel%d\nlabel%d:\n",pop1,pop2);
-												//printf("\tmov\tr%d,eax\n",reg);
-												tmp->next = NULL;
-												if(hcode == NULL){
-													hcode = tmp;
-													tcode = tmp;
-												}
-												else{
-													tcode->next = tmp;
-													tcode = tcode->next;
-												} 
-											}
+| if						{ check=0;
+		node *tmp = (node*)malloc(sizeof(node));
+		sprintf(tmp->data , "\nlabel%d:\n",pop());
+		//printf("\tmov\tr%d,eax\n",reg);
+		tmp->next = NULL;
+		if(hcode == NULL){
+			hcode = tmp;
+			tcode = tmp;
+		}
+		else{
+			tcode->next = tmp;
+			tcode = tcode->next;
+		} 
+		}
+		| loop								{ check=0;
+		node *tmp = (node*)malloc(sizeof(node));
+		int pop1=pop();
+		int pop2=pop();
+		sprintf(tmp->data , "\tpop\tecx\n\tloop\tlabel%d\nlabel%d:\n",pop1,pop2);
+		//printf("\tmov\tr%d,eax\n",reg);
+		tmp->next = NULL;
+		if(hcode == NULL){
+			hcode = tmp;
+			tcode = tmp;
+		}
+		else{
+			tcode->next = tmp;
+			tcode = tcode->next;
+		} 
+	}
 ;
 
 
 exp: /* expressions */
-  NUM 								{ movValtoReg($1);
-  											$$ = $1;
-  										}
-| REG									{ movVartoReg($1-48);
-												$$ = var[$1]; }
+  NUM 			{ movValtoReg($1);
+  				$$ = $1;
+  			}
+| REG			{ movVartoReg($1-48);
+				$$ = var[$1]; }
 | exp '+' exp        	{ add();
-											}
+			}
 | exp '-' exp        	{ sub(); 
-											}
+			}
 | exp '*' exp        	{ mul(); 
-											}
-| exp '/' exp        	{ if($3==0) {
-													error(2);  		/*check if divide by 0 */
-													checkerr =1;			
-			  								}			  
-			  								else{
-													idiv();
-												}
-											}
+			}
+| exp '/' exp        	{ 
+			if($3==0) {
+				error(2);  		/*check if divide by 0 */
+				checkerr =1;			
+			  }			  
+			  else{
+			  	idiv();
+			}
+}
 | exp '%' exp       	{ if($3==0) { 			/*check if modulo by 0 */
-													error(3); 
-													checkerr =1;			
-												}			  
-												else
-													mod();
-											}
+				error(3); 
+				checkerr =1;			
+			}			  
+			  else
+				mod();
+			}
 											
 | '-' exp  %prec NEG 	{ neg();
-												 }
+			}
 | '(' exp ')'        	{ $$ = $2; }
 ;
 
 
 assign: /*assign value to register*/
-  REG '=' exp					{ movRegtoVar($1-48);
-  											var[$1] = $3; }
+  REG '=' exp		{ movRegtoVar($1-48);
+  			  var[$1] = $3; }
 ;
 
 print: /*print*/
-  PRINT '(' exp ','  DEC ')'						{ node *tmp = (node*)malloc(sizeof(node));
-																					sprintf(tmp->data , "\tcall\t _printDec\n");
-																					//printf("\tmov\tr%d,eax\n",reg);
-																					tmp->next = NULL;
-																					if(hcode == NULL){
-																						hcode = tmp;
-																						tcode = tmp;
-																					}
-																					else{
-																						tcode->next = tmp;
-																						tcode = tcode->next;
-																					}
-																					checkfn[0] =1;
-																				}
-| PRINT '(' exp ','  HEX ')' 						{ node *tmp = (node*)malloc(sizeof(node));
-																					sprintf(tmp->data , "\tcall\t _printHex\n");
-																					//printf("\tmov\tr%d,eax\n",reg);
-																					tmp->next = NULL;
-																					if(hcode == NULL){
-																						hcode = tmp;
-																						tcode = tmp;
-																					}
-																					else{
-																						tcode->next = tmp;
-																						tcode = tcode->next;
-																					}
-																					checkfn[1] =1;
-																			  }
-| PRINT '('  STRING ')' 								{ node *tmp1 = (node*)malloc(sizeof(node));
-																					sprintf(tmp1->data ,"\tmov\tecx,str%d\n\tmov\tedx,%d\n\tcall\t_printString\n",strNUM,strlen($3));
-																					tmp1->next = NULL;
-																					if(hcode == NULL){
-																						hcode = tmp1;
-																						tcode = tmp1;
-																					}
-																					else{
-																						tcode->next = tmp1;
-																						tcode = tcode->next;
-																					}
-																					
-																					node *tmp = (node*)malloc(sizeof(node));
-																					sprintf(tmp->data ,"str%d\tdb\t\"%s\"\n",strNUM,$3);
-																					tmp->next = NULL;
-																					if(hdata == NULL){
-																						hdata = tmp;
-																						tdata = tmp;
-																					}
-																					else{
-																						tdata->next = tmp;
-																						tdata = tdata->next;
-																					}
-																					strNUM++;
-																					checkfn[2] =1;
-																				}
+  PRINT '(' exp ','  DEC ')'	{ node *tmp = (node*)malloc(sizeof(node));
+				sprintf(tmp->data , "\tcall\t _printDec\n");
+				//printf("\tmov\tr%d,eax\n",reg);
+				tmp->next = NULL;
+				if(hcode == NULL){
+					hcode = tmp;
+					tcode = tmp;
+				}
+				else{
+					tcode->next = tmp;
+					tcode = tcode->next;
+				}
+				checkfn[0] =1;
+}
+				
+| PRINT '(' exp ','  HEX ')' 	{ node *tmp = (node*)malloc(sizeof(node));
+				sprintf(tmp->data , "\tcall\t _printHex\n");
+				//printf("\tmov\tr%d,eax\n",reg);
+				tmp->next = NULL;
+				if(hcode == NULL){
+					hcode = tmp;
+					tcode = tmp;
+				}
+				else{
+					tcode->next = tmp;
+					tcode = tcode->next;
+				}
+				checkfn[1] =1;
+}
 
+| PRINT '('  STRING ')' 	{ node *tmp1 = (node*)malloc(sizeof(node));
+				sprintf(tmp1->data ,"\tmov\tecx,str%d\n\tmov\tedx,%d\n\tcall\t_printString\n",strNUM,strlen($3));
+				tmp1->next = NULL;
+				if(hcode == NULL){
+					hcode = tmp1;
+					tcode = tmp1;
+				}
+				else{
+					tcode->next = tmp1;
+					tcode = tcode->next;
+				}
+				node *tmp = (node*)malloc(sizeof(node));
+				sprintf(tmp->data ,"str%d\tdb\t\"%s\"\n",strNUM,$3);
+				tmp->next = NULL;
+				if(hdata == NULL){
+					hdata = tmp;
+					tdata = tmp;
+				}
+				else{
+					tdata->next = tmp;
+					tdata = tdata->next;
+				}
+				strNUM++;
+				checkfn[2] =1;
+}
 ;
 
 println: /*print line*/
-  PRINTLN '(' exp ','  DEC ')' 				 { node *tmp = (node*)malloc(sizeof(node));
-																					sprintf(tmp->data , "\tcall\t _printDec\n\tcall\t _printLn\n");
-																					//printf("\tmov\treg%d,eax\n",reg);
-																					tmp->next = NULL;
-																					if(hcode == NULL){
-																						hcode = tmp;
-																						tcode = tmp;
-																					}
-																					else{
-																						tcode->next = tmp;
-																						tcode = tcode->next;
-																					}
-																					checkfn[0] =1;
-																					checkfn[2] =1;
-																					checkfn[3] =1;
-																			 }
-| PRINTLN '(' exp ','  HEX ')' 				{ node *tmp = (node*)malloc(sizeof(node));
-																					sprintf(tmp->data , "\tcall\t _printHex\n\tcall\t _printLn\n");
-																					//printf("\tmov\treg%d,eax\n",reg);
-																					tmp->next = NULL;
-																					if(hcode == NULL){
-																						hcode = tmp;
-																						tcode = tmp;
-																					}
-																					else{
-																						tcode->next = tmp;
-																						tcode = tcode->next;
-																					}
-																					checkfn[1] =1;
-																					checkfn[3] =1;
-																					
-																		  }
-| PRINTLN '('  STRING ')' 						{ node *tmp1 = (node*)malloc(sizeof(node));
-																					sprintf(tmp1->data ,"\tmov\tecx,str%d\n\tmov\tedx,%d\n\tcall\t_printString\n\tcall\t _printLn\n",strNUM,strlen($3));
-																					tmp1->next = NULL;
-																					if(hcode == NULL){
-																						hcode = tmp1;
-																						tcode = tmp1;
-																					}
-																					else{
-																						tcode->next = tmp1;
-																						tcode = tcode->next;
-																					}
-																					
-																					node *tmp = (node*)malloc(sizeof(node));
-																					sprintf(tmp->data ,"str%d\tdb\t\"%s\"\n",strNUM,$3);
-																					tmp->next = NULL;
-																					if(hdata == NULL){
-																						hdata = tmp;
-																						tdata = tmp;
-																					}
-																					else{
-																						tdata->next = tmp;
-																						tdata = tdata->next;
-																					}
-																					strNUM++;
-																					checkfn[2] =1;
-																					checkfn[3] =1; }
-;
+  PRINTLN '(' exp ','  DEC ')' 	{ node *tmp = (node*)malloc(sizeof(node));
+				sprintf(tmp->data , "\tcall\t _printDec\n\tcall\t _printLn\n");
+				//printf("\tmov\treg%d,eax\n",reg);
+				tmp->next = NULL;
+				if(hcode == NULL){
+					hcode = tmp;
+					tcode = tmp;
+				}
+				else{
+					tcode->next = tmp;
+					tcode = tcode->next;
+				}
+				checkfn[0] =1;
+				checkfn[2] =1;
+				checkfn[3] =1;
+}
+| PRINTLN '(' exp ','  HEX ')' 	{ node *tmp = (node*)malloc(sizeof(node));
+				sprintf(tmp->data , "\tcall\t _printHex\n\tcall\t _printLn\n");
+				//printf("\tmov\treg%d,eax\n",reg);
+				tmp->next = NULL;
+				if(hcode == NULL){
+					hcode = tmp;
+					tcode = tmp;
+				}
+				else{
+					tcode->next = tmp;
+					tcode = tcode->next;
+				}
+					checkfn[1] =1;
+					checkfn[3] =1;
+}
+
+| PRINTLN '('  STRING ')' 	{ node *tmp1 = (node*)malloc(sizeof(node));
+				sprintf(tmp1->data ,"\tmov\tecx,str%d\n\tmov\tedx,%d\n\tcall\t_printString\n\tcall\t _printLn\n",strNUM,strlen($3));
+				tmp1->next = NULL;
+				if(hcode == NULL){
+				hcode = tmp1;
+				tcode = tmp1;
+				}
+				else{
+				tcode->next = tmp1;
+				tcode = tcode->next;
+				}
+				node *tmp = (node*)malloc(sizeof(node));
+				sprintf(tmp->data ,"str%d\tdb\t\"%s\"\n",strNUM,$3);
+				tmp->next = NULL;
+				if(hdata == NULL){
+					hdata = tmp;
+					tdata = tmp;
+				}
+				else{
+					tdata->next = tmp;
+					tdata = tdata->next;
+				}
+				strNUM++;
+				checkfn[2] =1;
+				checkfn[3] =1; }
+				;
 
 if: 
-  IF if_compare '{' stmt '}' else 				{ }
+  IF if_compare '{' stmt '}' else 	{ }
 ;
 if_compare:
- '(' exp ',' exp ')' 											{	check=0;
- 																						conif($2,$4);
-																						push(labelNUM);	
-																						labelNUM++;}
- ;
-else:
-	%empty															{}
-| else_compare '{' stmt '}'					{ }
+ '(' exp ',' exp ')' 		{	
+				 check=0;
+				 conif($2,$4);
+				 push(labelNUM);
+				 labelNUM++;}
 ;
-else_compare:
-ELSE												{ check=0;
-															conelse();
-													 		push(labelNUM);	
-  														labelNUM++; }
+else:
+	%empty			{}
+| else_compare '{' stmt '}'	{ }
 ;
 
+else_compare:
+ELSE				{ check=0;
+				conelse();
+		 		push(labelNUM);	
+				labelNUM++; 
+}
+;
 
 stmt: 
 	%empty
@@ -592,12 +594,11 @@ loop:
   LOOP loop_compare '{' stmt '}'  {  }
 ;
 loop_compare:
- '(' exp ',' exp ')' {			check=0;
- 														loop();
-  													
-  													labelNUM++;
-  										}
- ;
+ '(' exp ',' exp ')' {	check=0;
+ 			loop();
+  			labelNUM++;
+}
+;
 
 %%
 
@@ -645,7 +646,6 @@ int main(int argc,char** argv){
 	init();
 	yyparse();
 	print();
-	
 	return 0;
 }
 

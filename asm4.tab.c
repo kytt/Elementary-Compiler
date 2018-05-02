@@ -779,9 +779,9 @@ static const yytype_uint8 yytranslate[] =
 static const yytype_uint16 yyrline[] =
 {
        0,   365,   365,   366,   370,   371,   372,   373,   374,   388,
-     408,   411,   413,   415,   417,   419,   427,   435,   437,   442,
-     447,   461,   475,   505,   521,   537,   566,   569,   575,   576,
-     579,   587,   588,   592,   595
+     408,   411,   413,   415,   417,   419,   428,   436,   438,   443,
+     448,   463,   478,   506,   522,   538,   566,   569,   576,   577,
+     581,   589,   590,   594,   597
 };
 #endif
 
@@ -1640,326 +1640,325 @@ yyreduce:
   case 8:
 #line 374 "asm4.y" /* yacc.c:1646  */
     { check=0;
-												node *tmp = (node*)malloc(sizeof(node));
-												sprintf(tmp->data , "\nlabel%d:\n",pop());
-												//printf("\tmov\tr%d,eax\n",reg);
-												tmp->next = NULL;
-												if(hcode == NULL){
-													hcode = tmp;
-													tcode = tmp;
-												}
-												else{
-													tcode->next = tmp;
-													tcode = tcode->next;
-												} 
-											}
+		node *tmp = (node*)malloc(sizeof(node));
+		sprintf(tmp->data , "\nlabel%d:\n",pop());
+		//printf("\tmov\tr%d,eax\n",reg);
+		tmp->next = NULL;
+		if(hcode == NULL){
+			hcode = tmp;
+			tcode = tmp;
+		}
+		else{
+			tcode->next = tmp;
+			tcode = tcode->next;
+		} 
+		}
 #line 1657 "asm4.tab.c" /* yacc.c:1646  */
     break;
 
   case 9:
 #line 388 "asm4.y" /* yacc.c:1646  */
     { check=0;
-												node *tmp = (node*)malloc(sizeof(node));
-												int pop1=pop();
-												int pop2=pop();
-												sprintf(tmp->data , "\tpop\tecx\n\tloop\tlabel%d\nlabel%d:\n",pop1,pop2);
-												//printf("\tmov\tr%d,eax\n",reg);
-												tmp->next = NULL;
-												if(hcode == NULL){
-													hcode = tmp;
-													tcode = tmp;
-												}
-												else{
-													tcode->next = tmp;
-													tcode = tcode->next;
-												} 
-											}
+		node *tmp = (node*)malloc(sizeof(node));
+		int pop1=pop();
+		int pop2=pop();
+		sprintf(tmp->data , "\tpop\tecx\n\tloop\tlabel%d\nlabel%d:\n",pop1,pop2);
+		//printf("\tmov\tr%d,eax\n",reg);
+		tmp->next = NULL;
+		if(hcode == NULL){
+			hcode = tmp;
+			tcode = tmp;
+		}
+		else{
+			tcode->next = tmp;
+			tcode = tcode->next;
+		} 
+	}
 #line 1678 "asm4.tab.c" /* yacc.c:1646  */
     break;
 
   case 10:
 #line 408 "asm4.y" /* yacc.c:1646  */
     { movValtoReg((yyvsp[0].intValue));
-  											(yyval.intValue) = (yyvsp[0].intValue);
-  										}
+  				(yyval.intValue) = (yyvsp[0].intValue);
+  			}
 #line 1686 "asm4.tab.c" /* yacc.c:1646  */
     break;
 
   case 11:
 #line 411 "asm4.y" /* yacc.c:1646  */
     { movVartoReg((yyvsp[0].intValue)-48);
-												(yyval.intValue) = var[(yyvsp[0].intValue)]; }
+				(yyval.intValue) = var[(yyvsp[0].intValue)]; }
 #line 1693 "asm4.tab.c" /* yacc.c:1646  */
     break;
 
   case 12:
 #line 413 "asm4.y" /* yacc.c:1646  */
     { add();
-											}
+			}
 #line 1700 "asm4.tab.c" /* yacc.c:1646  */
     break;
 
   case 13:
 #line 415 "asm4.y" /* yacc.c:1646  */
     { sub(); 
-											}
+			}
 #line 1707 "asm4.tab.c" /* yacc.c:1646  */
     break;
 
   case 14:
 #line 417 "asm4.y" /* yacc.c:1646  */
     { mul(); 
-											}
+			}
 #line 1714 "asm4.tab.c" /* yacc.c:1646  */
     break;
 
   case 15:
 #line 419 "asm4.y" /* yacc.c:1646  */
-    { if((yyvsp[0].intValue)==0) {
-													error(2);  		/*check if divide by 0 */
-													checkerr =1;			
-			  								}			  
-			  								else{
-													idiv();
-												}
-											}
-#line 1727 "asm4.tab.c" /* yacc.c:1646  */
+    { 
+			if((yyvsp[0].intValue)==0) {
+				error(2);  		/*check if divide by 0 */
+				checkerr =1;			
+			  }			  
+			  else{
+			  	idiv();
+			}
+}
+#line 1728 "asm4.tab.c" /* yacc.c:1646  */
     break;
 
   case 16:
-#line 427 "asm4.y" /* yacc.c:1646  */
+#line 428 "asm4.y" /* yacc.c:1646  */
     { if((yyvsp[0].intValue)==0) { 			/*check if modulo by 0 */
-													error(3); 
-													checkerr =1;			
-												}			  
-												else
-													mod();
-											}
-#line 1739 "asm4.tab.c" /* yacc.c:1646  */
+				error(3); 
+				checkerr =1;			
+			}			  
+			  else
+				mod();
+			}
+#line 1740 "asm4.tab.c" /* yacc.c:1646  */
     break;
 
   case 17:
-#line 435 "asm4.y" /* yacc.c:1646  */
+#line 436 "asm4.y" /* yacc.c:1646  */
     { neg();
-												 }
-#line 1746 "asm4.tab.c" /* yacc.c:1646  */
+			}
+#line 1747 "asm4.tab.c" /* yacc.c:1646  */
     break;
 
   case 18:
-#line 437 "asm4.y" /* yacc.c:1646  */
+#line 438 "asm4.y" /* yacc.c:1646  */
     { (yyval.intValue) = (yyvsp[-1].intValue); }
-#line 1752 "asm4.tab.c" /* yacc.c:1646  */
+#line 1753 "asm4.tab.c" /* yacc.c:1646  */
     break;
 
   case 19:
-#line 442 "asm4.y" /* yacc.c:1646  */
+#line 443 "asm4.y" /* yacc.c:1646  */
     { movRegtoVar((yyvsp[-2].intValue)-48);
-  											var[(yyvsp[-2].intValue)] = (yyvsp[0].intValue); }
-#line 1759 "asm4.tab.c" /* yacc.c:1646  */
+  			  var[(yyvsp[-2].intValue)] = (yyvsp[0].intValue); }
+#line 1760 "asm4.tab.c" /* yacc.c:1646  */
     break;
 
   case 20:
-#line 447 "asm4.y" /* yacc.c:1646  */
+#line 448 "asm4.y" /* yacc.c:1646  */
     { node *tmp = (node*)malloc(sizeof(node));
-																					sprintf(tmp->data , "\tcall\t _printDec\n");
-																					//printf("\tmov\tr%d,eax\n",reg);
-																					tmp->next = NULL;
-																					if(hcode == NULL){
-																						hcode = tmp;
-																						tcode = tmp;
-																					}
-																					else{
-																						tcode->next = tmp;
-																						tcode = tcode->next;
-																					}
-																					checkfn[0] =1;
-																				}
-#line 1778 "asm4.tab.c" /* yacc.c:1646  */
+				sprintf(tmp->data , "\tcall\t _printDec\n");
+				//printf("\tmov\tr%d,eax\n",reg);
+				tmp->next = NULL;
+				if(hcode == NULL){
+					hcode = tmp;
+					tcode = tmp;
+				}
+				else{
+					tcode->next = tmp;
+					tcode = tcode->next;
+				}
+				checkfn[0] =1;
+}
+#line 1779 "asm4.tab.c" /* yacc.c:1646  */
     break;
 
   case 21:
-#line 461 "asm4.y" /* yacc.c:1646  */
+#line 463 "asm4.y" /* yacc.c:1646  */
     { node *tmp = (node*)malloc(sizeof(node));
-																					sprintf(tmp->data , "\tcall\t _printHex\n");
-																					//printf("\tmov\tr%d,eax\n",reg);
-																					tmp->next = NULL;
-																					if(hcode == NULL){
-																						hcode = tmp;
-																						tcode = tmp;
-																					}
-																					else{
-																						tcode->next = tmp;
-																						tcode = tcode->next;
-																					}
-																					checkfn[1] =1;
-																			  }
-#line 1797 "asm4.tab.c" /* yacc.c:1646  */
+				sprintf(tmp->data , "\tcall\t _printHex\n");
+				//printf("\tmov\tr%d,eax\n",reg);
+				tmp->next = NULL;
+				if(hcode == NULL){
+					hcode = tmp;
+					tcode = tmp;
+				}
+				else{
+					tcode->next = tmp;
+					tcode = tcode->next;
+				}
+				checkfn[1] =1;
+}
+#line 1798 "asm4.tab.c" /* yacc.c:1646  */
     break;
 
   case 22:
-#line 475 "asm4.y" /* yacc.c:1646  */
+#line 478 "asm4.y" /* yacc.c:1646  */
     { node *tmp1 = (node*)malloc(sizeof(node));
-																					sprintf(tmp1->data ,"\tmov\tecx,str%d\n\tmov\tedx,%d\n\tcall\t_printString\n",strNUM,strlen((yyvsp[-1].stringValue)));
-																					tmp1->next = NULL;
-																					if(hcode == NULL){
-																						hcode = tmp1;
-																						tcode = tmp1;
-																					}
-																					else{
-																						tcode->next = tmp1;
-																						tcode = tcode->next;
-																					}
-																					
-																					node *tmp = (node*)malloc(sizeof(node));
-																					sprintf(tmp->data ,"str%d\tdb\t\"%s\"\n",strNUM,(yyvsp[-1].stringValue));
-																					tmp->next = NULL;
-																					if(hdata == NULL){
-																						hdata = tmp;
-																						tdata = tmp;
-																					}
-																					else{
-																						tdata->next = tmp;
-																						tdata = tdata->next;
-																					}
-																					strNUM++;
-																					checkfn[2] =1;
-																				}
+				sprintf(tmp1->data ,"\tmov\tecx,str%d\n\tmov\tedx,%d\n\tcall\t_printString\n",strNUM,strlen((yyvsp[-1].stringValue)));
+				tmp1->next = NULL;
+				if(hcode == NULL){
+					hcode = tmp1;
+					tcode = tmp1;
+				}
+				else{
+					tcode->next = tmp1;
+					tcode = tcode->next;
+				}
+				node *tmp = (node*)malloc(sizeof(node));
+				sprintf(tmp->data ,"str%d\tdb\t\"%s\"\n",strNUM,(yyvsp[-1].stringValue));
+				tmp->next = NULL;
+				if(hdata == NULL){
+					hdata = tmp;
+					tdata = tmp;
+				}
+				else{
+					tdata->next = tmp;
+					tdata = tdata->next;
+				}
+				strNUM++;
+				checkfn[2] =1;
+}
 #line 1828 "asm4.tab.c" /* yacc.c:1646  */
     break;
 
   case 23:
-#line 505 "asm4.y" /* yacc.c:1646  */
+#line 506 "asm4.y" /* yacc.c:1646  */
     { node *tmp = (node*)malloc(sizeof(node));
-																					sprintf(tmp->data , "\tcall\t _printDec\n\tcall\t _printLn\n");
-																					//printf("\tmov\treg%d,eax\n",reg);
-																					tmp->next = NULL;
-																					if(hcode == NULL){
-																						hcode = tmp;
-																						tcode = tmp;
-																					}
-																					else{
-																						tcode->next = tmp;
-																						tcode = tcode->next;
-																					}
-																					checkfn[0] =1;
-																					checkfn[2] =1;
-																					checkfn[3] =1;
-																			 }
+				sprintf(tmp->data , "\tcall\t _printDec\n\tcall\t _printLn\n");
+				//printf("\tmov\treg%d,eax\n",reg);
+				tmp->next = NULL;
+				if(hcode == NULL){
+					hcode = tmp;
+					tcode = tmp;
+				}
+				else{
+					tcode->next = tmp;
+					tcode = tcode->next;
+				}
+				checkfn[0] =1;
+				checkfn[2] =1;
+				checkfn[3] =1;
+}
 #line 1849 "asm4.tab.c" /* yacc.c:1646  */
     break;
 
   case 24:
-#line 521 "asm4.y" /* yacc.c:1646  */
+#line 522 "asm4.y" /* yacc.c:1646  */
     { node *tmp = (node*)malloc(sizeof(node));
-																					sprintf(tmp->data , "\tcall\t _printHex\n\tcall\t _printLn\n");
-																					//printf("\tmov\treg%d,eax\n",reg);
-																					tmp->next = NULL;
-																					if(hcode == NULL){
-																						hcode = tmp;
-																						tcode = tmp;
-																					}
-																					else{
-																						tcode->next = tmp;
-																						tcode = tcode->next;
-																					}
-																					checkfn[1] =1;
-																					checkfn[3] =1;
-																					
-																		  }
-#line 1870 "asm4.tab.c" /* yacc.c:1646  */
+				sprintf(tmp->data , "\tcall\t _printHex\n\tcall\t _printLn\n");
+				//printf("\tmov\treg%d,eax\n",reg);
+				tmp->next = NULL;
+				if(hcode == NULL){
+					hcode = tmp;
+					tcode = tmp;
+				}
+				else{
+					tcode->next = tmp;
+					tcode = tcode->next;
+				}
+					checkfn[1] =1;
+					checkfn[3] =1;
+}
+#line 1869 "asm4.tab.c" /* yacc.c:1646  */
     break;
 
   case 25:
-#line 537 "asm4.y" /* yacc.c:1646  */
+#line 538 "asm4.y" /* yacc.c:1646  */
     { node *tmp1 = (node*)malloc(sizeof(node));
-																					sprintf(tmp1->data ,"\tmov\tecx,str%d\n\tmov\tedx,%d\n\tcall\t_printString\n\tcall\t _printLn\n",strNUM,strlen((yyvsp[-1].stringValue)));
-																					tmp1->next = NULL;
-																					if(hcode == NULL){
-																						hcode = tmp1;
-																						tcode = tmp1;
-																					}
-																					else{
-																						tcode->next = tmp1;
-																						tcode = tcode->next;
-																					}
-																					
-																					node *tmp = (node*)malloc(sizeof(node));
-																					sprintf(tmp->data ,"str%d\tdb\t\"%s\"\n",strNUM,(yyvsp[-1].stringValue));
-																					tmp->next = NULL;
-																					if(hdata == NULL){
-																						hdata = tmp;
-																						tdata = tmp;
-																					}
-																					else{
-																						tdata->next = tmp;
-																						tdata = tdata->next;
-																					}
-																					strNUM++;
-																					checkfn[2] =1;
-																					checkfn[3] =1; }
-#line 1901 "asm4.tab.c" /* yacc.c:1646  */
+				sprintf(tmp1->data ,"\tmov\tecx,str%d\n\tmov\tedx,%d\n\tcall\t_printString\n\tcall\t _printLn\n",strNUM,strlen((yyvsp[-1].stringValue)));
+				tmp1->next = NULL;
+				if(hcode == NULL){
+				hcode = tmp1;
+				tcode = tmp1;
+				}
+				else{
+				tcode->next = tmp1;
+				tcode = tcode->next;
+				}
+				node *tmp = (node*)malloc(sizeof(node));
+				sprintf(tmp->data ,"str%d\tdb\t\"%s\"\n",strNUM,(yyvsp[-1].stringValue));
+				tmp->next = NULL;
+				if(hdata == NULL){
+					hdata = tmp;
+					tdata = tmp;
+				}
+				else{
+					tdata->next = tmp;
+					tdata = tdata->next;
+				}
+				strNUM++;
+				checkfn[2] =1;
+				checkfn[3] =1; }
+#line 1899 "asm4.tab.c" /* yacc.c:1646  */
     break;
 
   case 26:
 #line 566 "asm4.y" /* yacc.c:1646  */
     { }
-#line 1907 "asm4.tab.c" /* yacc.c:1646  */
+#line 1905 "asm4.tab.c" /* yacc.c:1646  */
     break;
 
   case 27:
 #line 569 "asm4.y" /* yacc.c:1646  */
-    {	check=0;
- 																						conif((yyvsp[-3].intValue),(yyvsp[-1].intValue));
-																						push(labelNUM);	
-																						labelNUM++;}
-#line 1916 "asm4.tab.c" /* yacc.c:1646  */
+    {	
+				 check=0;
+				 conif((yyvsp[-3].intValue),(yyvsp[-1].intValue));
+				 push(labelNUM);
+				 labelNUM++;}
+#line 1915 "asm4.tab.c" /* yacc.c:1646  */
     break;
 
   case 28:
-#line 575 "asm4.y" /* yacc.c:1646  */
+#line 576 "asm4.y" /* yacc.c:1646  */
     {}
-#line 1922 "asm4.tab.c" /* yacc.c:1646  */
+#line 1921 "asm4.tab.c" /* yacc.c:1646  */
     break;
 
   case 29:
-#line 576 "asm4.y" /* yacc.c:1646  */
+#line 577 "asm4.y" /* yacc.c:1646  */
     { }
-#line 1928 "asm4.tab.c" /* yacc.c:1646  */
+#line 1927 "asm4.tab.c" /* yacc.c:1646  */
     break;
 
   case 30:
-#line 579 "asm4.y" /* yacc.c:1646  */
+#line 581 "asm4.y" /* yacc.c:1646  */
     { check=0;
-															conelse();
-													 		push(labelNUM);	
-  														labelNUM++; }
+				conelse();
+		 		push(labelNUM);	
+				labelNUM++; 
+}
 #line 1937 "asm4.tab.c" /* yacc.c:1646  */
     break;
 
   case 32:
-#line 588 "asm4.y" /* yacc.c:1646  */
+#line 590 "asm4.y" /* yacc.c:1646  */
     {  }
 #line 1943 "asm4.tab.c" /* yacc.c:1646  */
     break;
 
   case 33:
-#line 592 "asm4.y" /* yacc.c:1646  */
+#line 594 "asm4.y" /* yacc.c:1646  */
     {  }
 #line 1949 "asm4.tab.c" /* yacc.c:1646  */
     break;
 
   case 34:
-#line 595 "asm4.y" /* yacc.c:1646  */
-    {			check=0;
- 														loop();
-  													
-  													labelNUM++;
-  										}
-#line 1959 "asm4.tab.c" /* yacc.c:1646  */
+#line 597 "asm4.y" /* yacc.c:1646  */
+    {	check=0;
+ 			loop();
+  			labelNUM++;
+}
+#line 1958 "asm4.tab.c" /* yacc.c:1646  */
     break;
 
 
-#line 1963 "asm4.tab.c" /* yacc.c:1646  */
+#line 1962 "asm4.tab.c" /* yacc.c:1646  */
       default: break;
     }
   /* User semantic actions sometimes alter yychar, and that requires
@@ -2187,7 +2186,7 @@ yyreturn:
 #endif
   return yyresult;
 }
-#line 602 "asm4.y" /* yacc.c:1906  */
+#line 603 "asm4.y" /* yacc.c:1906  */
 
 
 void yyerror(char *s) 
@@ -2234,7 +2233,6 @@ int main(int argc,char** argv){
 	init();
 	yyparse();
 	print();
-	
 	return 0;
 }
 
