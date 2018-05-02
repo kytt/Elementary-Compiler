@@ -67,18 +67,343 @@
   #include <math.h>
   #include <stdlib.h>
   #include <stdio.h>
+  #include <string.h>
   #include "asm4.tab.h"
+  
+  typedef struct node {
+		char data[1000];
+		struct node* next;
+	} node;
+	typedef struct stack {
+		int data;
+		struct stack* next;
+	} stack;
+		
   extern int yylex();
+  extern int yyin;
   int yyparse(void);
 
-//  int yylex (void);
   void yyerror (char *);
   void error(int error);
   int checkerr=0;
   int var[26];
+	stack *hstack = NULL;
+	node *hcode = NULL;
+	node *tcode = NULL;
+	node *hdata = NULL;
+	node *tdata = NULL;
+	node *global = NULL;
+	int checkfn[4] = {0,0,0,0};
+	int check =0;
+	int labelNUM = 1 ;
+	int strNUM = 1;
+
+void push(int data){
+	stack *stk = (stack*)malloc(sizeof(stack));
+	stk->data = data;
+	stk->next = hstack;
+	hstack = stk;
+	
+	
+}
+
+void init(){
+	node *tmp = (node*)malloc(sizeof(node));
+	sprintf(tmp->data , "segment .bss\n");
+	hcode=tmp;
+	tcode=tmp;
+	for(int i=0;i<26;i++){
+		node *tmp = (node*)malloc(sizeof(node));
+		sprintf(tmp->data,"reg%d\tresb\t8\n",i);
+		tcode -> next = tmp;
+		tcode = tcode->next;
+	}
+	node *tmpl = (node*)malloc(sizeof(node));
+	sprintf(tmpl->data,"decstr\tresb\t10\nct1\tresd\t1\n\nsection .text\n\nglobal _start\n\n_start:\n");
+	tcode -> next = tmpl;
+	tcode = tcode->next;
+	tcode->next = NULL;
+	node *tmpdata = (node*)malloc(sizeof(node));
+	sprintf(tmpdata->data,"section .data\n");
+	hdata = tmpdata;
+	tdata = tmpdata;
+	tdata -> next = tmpdata;
+	tdata = tdata->next;
+	tdata->next = NULL;
+	
+}
+void addString(char *string){
+	node *tmp = (node*)malloc(sizeof(node));
+	sprintf(tmp->data , "str%d db \"%s\"\n",strNUM,string);
+	tmp->next = NULL;
+	if(hdata == NULL){
+		hdata = tmp;
+		tdata = tmp;
+	}
+	else{
+	tdata->next = tmp;
+	tdata = tdata->next;
+	}
+}
+
+int pop(){
+	if(hstack==NULL)
+		return 0;
+	stack *tmp;
+	int data;
+	tmp = hstack;
+	hstack = hstack->next;
+	data = tmp->data;
+	free(tmp);
+	return data;
+	
+}
+void print(){
+	node *tmp = (node*)malloc(sizeof(node));
+	sprintf(tmp->data , "\tmov\teax,1\n\tint\t0x80\n");
+	tmp->next = NULL;
+	tcode->next = tmp;
+	tcode = tcode->next;
+	FILE *fout=fopen("asm4.asm","w");
+	node* run=hcode;
+	if(checkfn[0] ==1)
+		printDEC();
+	if(checkfn[1] ==1)
+		printHEX();
+	if(checkfn[2] ==1)
+		printString();
+	if(checkfn[3] ==1)
+		printLn();
+	
+	tcode->next = hdata;
+	while(run){
+		fprintf(fout,"%s",run->data);
+		run = run->next;
+	}
+}
+
+void movValtoReg(int value){
+	node *tmp = (node*)malloc(sizeof(node));
+	if(check==0){
+		sprintf(tmp->data , "\tmov\teax,%d\n",value);
+		//printf("\tmov\teax,%d\n",value);
+		check =1;
+	}
+	else{
+		sprintf(tmp->data , "\tpush\teax\n\tmov\teax,%d\n",value);
+		//printf("\tpush\teax\n\tmov\teax,%d\n",value);
+	}
+	tmp->next = NULL;
+	if(hcode == NULL){
+		hcode = tmp;
+		tcode = tmp;
+	}
+	else{
+	tcode->next = tmp;
+	tcode = tcode->next;
+	}
+	
+}
+void movVartoReg(int reg){
+	node *tmp = (node*)malloc(sizeof(node));
+	if(check==0){
+		sprintf(tmp->data , "\tmov\teax,[reg%d]\n",reg);
+		//printf("\tmov\teax,reg%d\n",reg);
+		check =1;
+	}
+	else{
+		sprintf(tmp->data , "\tpush\teax\n\tmov\teax,[reg%d]\n",reg);
+		//printf("\tpush\teax\n\tmov\teax,reg%d\n",reg);
+	}
+	tmp->next = NULL;
+	if(hcode == NULL){
+		hcode = tmp;
+		tcode = tmp;
+	}
+	else{
+	tcode->next = tmp;
+	tcode = tcode->next;
+	}
+}
+void movRegtoVar(int reg){
+	node *tmp = (node*)malloc(sizeof(node));
+	sprintf(tmp->data , "\tmov\t[reg%d],eax\n",reg);
+	//printf("\tmov\treg%d,eax\n",reg);
+	tmp->next = NULL;
+	if(hcode == NULL){
+		hcode = tmp;
+		tcode = tmp;
+	}
+	else{
+	tcode->next = tmp;
+	tcode = tcode->next;
+	}
+}
 
 
-#line 82 "asm4.tab.c" /* yacc.c:339  */
+void add(){
+	node *tmp = (node*)malloc(sizeof(node));
+	sprintf(tmp->data , "\tmov\tebx,eax\n\tpop\teax\n\tadd\teax,ebx\n");	
+	//printf("\tmov\tebx,eax\n\tpop\teax\n\tadd\teax,ebx\n");
+	tmp->next = NULL;
+	tcode->next = tmp;
+	tcode = tcode->next;
+}
+void sub(){
+	node *tmp = (node*)malloc(sizeof(node));
+	sprintf(tmp->data , "\tmov\tebx,eax\n\tpop\teax\n\tsub\teax,ebx\n");	
+	//printf("\tmov\tebx,eax\n\tpop\teax\n\tsub\teax,ebx\n");
+	tmp->next = NULL;
+	tcode->next = tmp;
+	tcode = tcode->next;
+}
+void mul(){
+	node *tmp = (node*)malloc(sizeof(node));
+	sprintf(tmp->data , "\tmov\tebx,eax\n\tpop\teax\n\timul\tebx\n");	
+	//printf("\tmov\tebx,eax\n\tpop\teax\n\tmul\tebx\n");
+	tmp->next = NULL;
+	tcode->next = tmp;
+	tcode = tcode->next;
+}
+void idiv(){
+	node *tmp = (node*)malloc(sizeof(node));
+	sprintf(tmp->data , "\tmov\tebx,eax\n\tpop\teax\n\tidiv\tebx\n");	
+	//printf("\tmov\tebx,eax\n\tpop\teax\n\tidiv\tebx\n");
+	tmp->next = NULL;
+	tcode->next = tmp;
+	tcode = tcode->next;
+}
+void mod(){
+	node *tmp = (node*)malloc(sizeof(node));
+	sprintf(tmp->data , "\tmov\tebx,eax\n\tpop\teax\n\tidiv\tebx\n\tmov\teax,edx\n");	
+	//printf("\tmov\tebx,eax\n\tpop\teax\n\tidiv\tebx\n\tmov\teax,edx\n");
+	tmp->next = NULL;
+	tcode->next = tmp;
+	tcode = tcode->next;
+}
+void neg(){
+node *tmp = (node*)malloc(sizeof(node));
+	sprintf(tmp->data , "\tneg\teax\n");	
+	//printf("\tmov\tebx,eax\n\tpop\teax\n\tidiv\tebx\n\tmov\teax,edx\n");
+	tmp->next = NULL;
+	tcode->next = tmp;
+	tcode = tcode->next;
+}
+void printDEC(){
+node *tmp = (node*)malloc(sizeof(node));
+	sprintf(tmp->data ,"_printDec:\n\tpushad\n\tmov\tdword[ct1],0\n\tmov\tedi,decstr\n\tadd\tedi,9\n\txor\tedx,edx\n\n\tpush\t0\n\tcmp\teax,0\n\tjge\twhileNotZeroD\n\tpop\tebx\n\tpush\t'-'\n\tneg\teax\nwhileNotZeroD:\n\tmov\tebx,10\n\tdiv\tebx\n\tadd\tedx,'0'\n\tmov\tbyte[edi],dl\n\tdec\tedi\n\tinc\tdword[ct1]\n\txor\tedx,edx\n\tcmp\teax,0\n\tjne\twhileNotZeroD\n\tpop\tedx\n\tcmp\tedx,0\n\tje\tskip\n\n\tmov\tbyte[edi],dl\n\tdec\tedi\n\tinc\tdword[ct1]\n\txor\tedx,edx\n\nskip:\n\tinc\tedi\n\tmov\tecx, edi\n\tmov\tedx,[ct1]\n\tmov\teax, 4\n\tmov\tebx, 1\n\tint\t0x80\n\n\tpopad\n\tret\n ");	
+	//printf("\tmov\tebx,eax\n\tpop\teax\n\tidiv\tebx\n\tmov\teax,edx\n");
+	tmp->next = NULL;
+	if(hcode == NULL){
+		hcode = tmp;
+		tcode = tmp;
+	}
+	else{
+		tcode->next = tmp;
+		tcode = tcode->next;
+	}
+}
+
+void printHEX(){
+node *tmp = (node*)malloc(sizeof(node));
+	sprintf(tmp->data ,"_printHex:\n\tpushad\n\tmov\tdword[ct1],0\n\tmov\tedi,decstr\n\tadd\tedi,9\n\txor\tedx,edx\n\tpush\t'0'\n\tpush\t'x'\n\nwhileNotZeroH:\n\tmov\tebx,16\n\tdiv\tebx\n\tcmp\tedx,9\n\tjg\ttoAscii\n\tadd\tedx,'0'\n\tjmp\tputStr\ntoAscii:\n\tadd\tedx,55\nputStr:\n\tmov\tbyte[edi],dl\n\tdec\tedi\n\tinc\tdword[ct1]\n\txor\tedx,edx\n\tcmp\teax,0\n\tjne\twhileNotZeroH\n\n\tpop\tedx\n\tmov\tbyte[edi],dl\n\tdec\tedi\n\tinc\tdword[ct1]\n\txor\tedx,edx\n\n\tpop\tedx\n\tmov\tbyte[edi],dl\n\tdec\tedi\n\tinc\tdword[ct1]\n\txor\tedx,edx\n\n\tinc\tedi\n\tmov\tecx, edi\n\tmov\tedx,[ct1]\n\tmov\teax, 4\n\tmov\tebx, 1\n\tint\t0x80\n\n\tpopad\n\tret\n ");	
+	//printf("\tmov\tebx,eax\n\tpop\teax\n\tidiv\tebx\n\tmov\teax,edx\n");
+	tmp->next = NULL;
+	if(hcode == NULL){
+		hcode = tmp;
+		tcode = tmp;
+	}
+	else{
+		tcode->next = tmp;
+		tcode = tcode->next;
+	}
+	labelNUM++;
+}
+
+void printLn(){
+	node *tmpdata = (node*)malloc(sizeof(node));
+	sprintf(tmpdata->data,"nl\tdb\t10\n");
+	node *tmp = (node*)malloc(sizeof(node));
+	tdata -> next = tmpdata;
+	tdata = tdata->next;
+	tdata->next = NULL;
+	sprintf(tmp->data ,"_printLn:\n\tpush\tecx\n\tpush\tedx\n\n\tmov\tecx, nl\n\tmov\tedx, 1\n\tcall\t_printString\n\n\tpop\tedx\n\tpop\tecx\n\tret\n");	
+	//printf("\tmov\tebx,eax\n\tpop\teax\n\tidiv\tebx\n\tmov\teax,edx\n");
+	tmp->next = NULL;
+	if(hcode == NULL){
+		hcode = tmp;
+		tcode = tmp;
+	}
+	else{
+		tcode->next = tmp;
+		tcode = tcode->next;
+	}
+}
+
+void printString(char *string){
+	node *tmp = (node*)malloc(sizeof(node));
+	sprintf(tmp->data ,"_printString:\n\tpush\teax\n\tpush\tebx\n\n\tmov\teax,4\n\tmov\tebx,1\n\tint\t0x80\n\n\tpop\tebx\n\tpop\teax\n\tret\n");	
+	//printf("\tmov\tebx,eax\n\tpop\teax\n\tidiv\tebx\n\tmov\teax,edx\n");
+	tmp->next = NULL;
+	if(hcode == NULL){
+		hcode = tmp;
+		tcode = tmp;
+	}
+	else{
+		tcode->next = tmp;
+		tcode = tcode->next;
+	}
+}
+
+void conif(int first,int sec){
+	node *tmp = (node*)malloc(sizeof(node));
+	sprintf(tmp->data ,"\tmov\tebx,eax\n\tpop\teax\n\tcmp\teax,ebx\n\tjne\tlabel%d\n\n",labelNUM);	
+	//printf("\tmov\tebx,eax\n\tpop\teax\n\tcmp\teax,ebx\n\tjne\teax,edx\n");
+	tmp->next = NULL;
+	if(hcode == NULL){
+		hcode = tmp;
+		tcode = tmp;
+	}
+	else{
+		tcode->next = tmp;
+		tcode = tcode->next;
+	}
+	
+}
+
+void conelse(){
+	node *tmp = (node*)malloc(sizeof(node));
+	sprintf(tmp->data , "\tjmp\tlabel%d\n\nlabel%d:\n",labelNUM,pop(labelNUM));
+	//printf("\tmov\tr%d,eax\n",reg);
+	tmp->next = NULL;
+	if(hcode == NULL){
+		hcode = tmp;
+		tcode = tmp;
+	}
+	else{
+		tcode->next = tmp;
+		tcode = tcode->next;
+	}
+}
+void loop(){
+	push(labelNUM);
+	node *tmp = (node*)malloc(sizeof(node));
+	sprintf(tmp->data ,"\tmov\tebx,eax\n\tpop\teax\n\tcmp\teax,ebx\n\tjg\tlabel%d\n\n\tsub\tebx,eax\n\tmov\tecx,ebx\n\tinc\tecx\nlabel%d:\n\tpush\tecx\n",labelNUM,labelNUM+1);
+	labelNUM++;
+	push(labelNUM);
+	//printf("\tmov\tr%d,eax\n",reg);
+	tmp->next = NULL;
+	if(hcode == NULL){
+		hcode = tmp;
+		tcode = tmp;
+	}
+	else{
+		tcode->next = tmp;
+		tcode = tcode->next;
+	}
+}
+
+#line 407 "asm4.tab.c" /* yacc.c:339  */
 
 # ifndef YY_NULLPTR
 #  if defined __cplusplus && 201103L <= __cplusplus
@@ -121,7 +446,10 @@ extern int yydebug;
     IF = 263,
     LOOP = 264,
     STRING = 265,
-    NEG = 266
+    DEC = 266,
+    HEX = 267,
+    ELSE = 268,
+    NEG = 269
   };
 #endif
 
@@ -130,12 +458,12 @@ extern int yydebug;
 
 union YYSTYPE
 {
-#line 22 "asm4.y" /* yacc.c:355  */
+#line 347 "asm4.y" /* yacc.c:355  */
 
     int intValue;
     char *stringValue;
 
-#line 139 "asm4.tab.c" /* yacc.c:355  */
+#line 467 "asm4.tab.c" /* yacc.c:355  */
 };
 
 typedef union YYSTYPE YYSTYPE;
@@ -152,7 +480,7 @@ int yyparse (void);
 
 /* Copy the second part of user declarations.  */
 
-#line 156 "asm4.tab.c" /* yacc.c:358  */
+#line 484 "asm4.tab.c" /* yacc.c:358  */
 
 #ifdef short
 # undef short
@@ -394,21 +722,21 @@ union yyalloc
 /* YYFINAL -- State number of the termination state.  */
 #define YYFINAL  2
 /* YYLAST -- Last index in YYTABLE.  */
-#define YYLAST   124
+#define YYLAST   163
 
 /* YYNTOKENS -- Number of terminals.  */
-#define YYNTOKENS  27
+#define YYNTOKENS  29
 /* YYNNTS -- Number of nonterminals.  */
-#define YYNNTS  10
+#define YYNNTS  14
 /* YYNRULES -- Number of rules.  */
-#define YYNRULES  29
+#define YYNRULES  34
 /* YYNSTATES -- Number of states.  */
-#define YYNSTATES  72
+#define YYNSTATES  80
 
 /* YYTRANSLATE[YYX] -- Symbol number corresponding to YYX as returned
    by yylex, with out-of-bounds checking.  */
 #define YYUNDEFTOK  2
-#define YYMAXUTOK   268
+#define YYMAXUTOK   269
 
 #define YYTRANSLATE(YYX)                                                \
   ((unsigned int) (YYX) <= YYMAXUTOK ? yytranslate[YYX] : YYUNDEFTOK)
@@ -418,18 +746,18 @@ union yyalloc
 static const yytype_uint8 yytranslate[] =
 {
        0,     2,     2,     2,     2,     2,     2,     2,     2,     2,
-      17,     2,     2,     2,     2,     2,     2,     2,     2,     2,
+      20,     2,     2,     2,     2,     2,     2,     2,     2,     2,
+       2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
+       2,     2,     2,     2,     2,     2,     2,    22,     2,     2,
+      23,    24,    16,    15,    26,    14,     2,    17,     2,     2,
+       2,     2,     2,     2,     2,     2,     2,     2,     2,    21,
+       2,    25,     2,     2,     2,     2,     2,     2,     2,     2,
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
-      19,    20,    13,    12,    22,    11,     2,    14,     2,     2,
-       2,     2,     2,     2,     2,     2,     2,     2,     2,    18,
-       2,    21,     2,     2,     2,     2,     2,     2,     2,     2,
+       2,     2,    18,     2,     2,     2,     2,     2,     2,     2,
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
-       2,     2,    15,     2,     2,     2,     2,     2,     2,     2,
-       2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
-       2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
-       2,     2,     2,    25,     2,    26,     2,     2,     2,     2,
+       2,     2,     2,    27,     2,    28,     2,     2,     2,     2,
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
@@ -443,16 +771,17 @@ static const yytype_uint8 yytranslate[] =
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
        2,     2,     2,     2,     2,     2,     1,     2,     3,     4,
-       5,     6,     7,     8,     9,    10,    16,    23,    24
+       5,     6,     7,     8,     9,    10,    11,    12,    13,    19
 };
 
 #if YYDEBUG
   /* YYRLINE[YYN] -- Source line where rule number YYN was defined.  */
-static const yytype_uint8 yyrline[] =
+static const yytype_uint16 yyrline[] =
 {
-       0,    41,    41,    42,    46,    47,    48,    49,    50,    51,
-      58,    59,    60,    61,    62,    63,    69,    75,    76,    81,
-      85,    86,    87,    91,    92,    93,    97,   101,   102,   106
+       0,   365,   365,   366,   370,   371,   372,   373,   374,   388,
+     408,   411,   413,   415,   417,   419,   427,   435,   437,   442,
+     447,   461,   475,   505,   521,   537,   566,   569,   575,   576,
+     579,   587,   588,   592,   595
 };
 #endif
 
@@ -462,10 +791,11 @@ static const yytype_uint8 yyrline[] =
 static const char *const yytname[] =
 {
   "$end", "error", "$undefined", "NUM", "REG", "UNK", "PRINT", "PRINTLN",
-  "IF", "LOOP", "STRING", "'-'", "'+'", "'*'", "'/'", "'\\\\'", "NEG",
-  "'\\n'", "';'", "'('", "')'", "'='", "','", "\"dec\"", "\"hex\"", "'{'",
-  "'}'", "$accept", "input", "line", "exp", "assign", "print", "println",
-  "if", "stmt", "loop", YY_NULLPTR
+  "IF", "LOOP", "STRING", "DEC", "HEX", "ELSE", "'-'", "'+'", "'*'", "'/'",
+  "'\\\\'", "NEG", "'\\n'", "';'", "'%'", "'('", "')'", "'='", "','",
+  "'{'", "'}'", "$accept", "input", "line", "exp", "assign", "print",
+  "println", "if", "if_compare", "else", "else_compare", "stmt", "loop",
+  "loop_compare", YY_NULLPTR
 };
 #endif
 
@@ -475,15 +805,15 @@ static const char *const yytname[] =
 static const yytype_uint16 yytoknum[] =
 {
        0,   256,   257,   258,   259,   260,   261,   262,   263,   264,
-     265,    45,    43,    42,    47,    92,   266,    10,    59,    40,
-      41,    61,    44,   267,   268,   123,   125
+     265,   266,   267,   268,    45,    43,    42,    47,    92,   269,
+      10,    59,    37,    40,    41,    61,    44,   123,   125
 };
 # endif
 
-#define YYPACT_NINF -17
+#define YYPACT_NINF -38
 
 #define yypact_value_is_default(Yystate) \
-  (!!((Yystate) == (-17)))
+  (!!((Yystate) == (-38)))
 
 #define YYTABLE_NINF -1
 
@@ -492,16 +822,16 @@ static const yytype_uint16 yytoknum[] =
 
   /* YYPACT[STATE-NUM] -- Index in YYTABLE of the portion describing
      STATE-NUM.  */
-static const yytype_int8 yypact[] =
+static const yytype_int16 yypact[] =
 {
-     -17,     8,   -17,   -14,    -8,    -6,     9,    18,   -17,   -17,
-      26,    27,    30,   -17,   -17,    32,    23,    28,    32,    32,
-     -17,   -17,   -17,   -17,   -17,    32,    32,   109,    29,    45,
-      41,    57,    62,    74,   -17,    79,    32,    32,    32,    32,
-      32,   -17,    -5,   -17,    17,    32,    32,   -17,    -9,    -9,
-     -17,   -17,   -17,    42,    44,    58,    60,    89,    99,   -17,
-     -17,   -17,   -17,    21,    40,    46,    46,   -17,    55,    56,
-     -17,   -17
+     -38,    47,   -38,   -21,   -16,    -9,    -7,    -2,   -38,   -38,
+      14,    21,    27,   -38,   -38,    60,    56,    58,    60,    10,
+      60,    25,   -38,   -38,   -38,   -38,   -38,    60,    60,   141,
+      34,    70,    45,    83,    96,   -38,   109,   -38,    49,   122,
+      60,    60,    60,    60,    60,   -38,    12,   -38,    38,    60,
+       2,    60,    11,   -38,    16,    16,    49,    49,   141,    51,
+      52,    53,    54,   126,    67,   -38,   137,   -38,   -38,   -38,
+     -38,   -38,   -38,   -38,   -38,    46,   -38,   -38,    37,   -38
 };
 
   /* YYDEFACT[STATE-NUM] -- Default reduction number in state STATE-NUM.
@@ -511,24 +841,26 @@ static const yytype_uint8 yydefact[] =
 {
        2,     0,     1,     0,     0,     0,     0,     0,     4,     3,
        0,     0,     0,     8,     9,     0,     0,     0,     0,     0,
-       5,     6,     7,    10,    11,     0,     0,    19,     0,     0,
-       0,     0,     0,     0,    17,     0,     0,     0,     0,     0,
-       0,    22,     0,    25,     0,     0,     0,    18,    13,    12,
-      14,    15,    16,     0,     0,     0,     0,     0,     0,    20,
-      21,    23,    24,     0,     0,    27,    27,    28,     0,     0,
-      26,    29
+       0,     0,     5,     6,     7,    10,    11,     0,     0,    19,
+       0,     0,     0,     0,     0,    31,     0,    31,    17,     0,
+       0,     0,     0,     0,     0,    22,     0,    25,     0,     0,
+       0,     0,     0,    18,    13,    12,    14,    15,    16,     0,
+       0,     0,     0,     0,    28,    32,     0,    33,    20,    21,
+      23,    24,    27,    30,    26,     0,    34,    31,     0,    29
 };
 
   /* YYPGOTO[NTERM-NUM].  */
 static const yytype_int8 yypgoto[] =
 {
-     -17,   -17,    65,   -16,   -17,   -17,   -17,   -17,    31,   -17
+     -38,   -38,    81,   -15,   -38,   -38,   -38,   -38,   -38,   -38,
+     -38,   -37,   -38,   -38
 };
 
   /* YYDEFGOTO[NTERM-NUM].  */
 static const yytype_int8 yydefgoto[] =
 {
-      -1,     1,    67,    27,    10,    11,    12,    13,    68,    14
+      -1,     1,    65,    29,    10,    11,    12,    13,    19,    74,
+      75,    50,    14,    21
 };
 
   /* YYTABLE[YYPACT[STATE-NUM]] -- What to do in state STATE-NUM.  If
@@ -536,58 +868,67 @@ static const yytype_int8 yydefgoto[] =
      number is the opposite.  If YYTABLE_NINF, syntax error.  */
 static const yytype_uint8 yytable[] =
 {
-      29,    31,    32,    33,    38,    39,    40,    15,     2,    34,
-      35,    16,     3,    17,     4,     5,     6,     7,    53,    54,
-      48,    49,    50,    51,    52,     8,    23,    24,    18,    57,
-      58,    23,    24,    28,    25,    23,    24,    19,    30,    25,
-      55,    56,    26,    25,    20,    21,    65,    26,    22,    41,
-       3,    26,     4,     5,     6,     7,    36,    37,    38,    39,
-      40,    43,    59,     8,    60,    66,     9,    42,    36,    37,
-      38,    39,    40,    36,    37,    38,    39,    40,    61,    44,
-      62,    70,    71,     0,    45,    36,    37,    38,    39,    40,
-      36,    37,    38,    39,    40,     0,    46,    69,     0,    47,
-      36,    37,    38,    39,    40,     0,     0,     0,     0,    63,
-      36,    37,    38,    39,    40,     0,     0,     0,     0,    64,
-      36,    37,    38,    39,    40
+      52,    31,    33,    34,    15,    36,     3,    16,     4,     5,
+       6,     7,    38,    39,    17,     3,    18,     4,     5,     6,
+       7,    20,     8,    59,    60,    54,    55,    56,    57,    58,
+      64,     8,    42,    43,    63,    22,    66,    35,    44,    67,
+      78,     3,    23,     4,     5,     6,     7,     2,    24,    61,
+      62,     3,    37,     4,     5,     6,     7,     8,    45,    25,
+      26,    25,    26,    25,    26,    79,    30,     8,    32,    47,
+      27,    44,    27,    77,    27,    68,    69,    70,    71,    28,
+      73,    28,     9,    28,    40,    41,    42,    43,     0,     0,
+       0,     0,    44,     0,     0,     0,    46,    40,    41,    42,
+      43,     0,     0,     0,     0,    44,     0,     0,     0,    48,
+      40,    41,    42,    43,     0,     0,     0,     0,    44,     0,
+       0,     0,    49,    40,    41,    42,    43,     0,     0,     0,
+       0,    44,     0,     0,     0,    51,    40,    41,    42,    43,
+      40,    41,    42,    43,    44,     0,    53,     0,    44,     0,
+      72,    40,    41,    42,    43,    40,    41,    42,    43,    44,
+       0,    76,     0,    44
 };
 
 static const yytype_int8 yycheck[] =
 {
-      16,    17,    18,    19,    13,    14,    15,    21,     0,    25,
-      26,    19,     4,    19,     6,     7,     8,     9,    23,    24,
-      36,    37,    38,    39,    40,    17,     3,     4,    19,    45,
-      46,     3,     4,    10,    11,     3,     4,    19,    10,    11,
-      23,    24,    19,    11,    18,    18,    25,    19,    18,    20,
-       4,    19,     6,     7,     8,     9,    11,    12,    13,    14,
-      15,    20,    20,    17,    20,    25,     1,    22,    11,    12,
-      13,    14,    15,    11,    12,    13,    14,    15,    20,    22,
-      20,    26,    26,    -1,    22,    11,    12,    13,    14,    15,
-      11,    12,    13,    14,    15,    -1,    22,    66,    -1,    20,
-      11,    12,    13,    14,    15,    -1,    -1,    -1,    -1,    20,
-      11,    12,    13,    14,    15,    -1,    -1,    -1,    -1,    20,
-      11,    12,    13,    14,    15
+      37,    16,    17,    18,    25,    20,     4,    23,     6,     7,
+       8,     9,    27,    28,    23,     4,    23,     6,     7,     8,
+       9,    23,    20,    11,    12,    40,    41,    42,    43,    44,
+      28,    20,    16,    17,    49,    21,    51,    27,    22,    28,
+      77,     4,    21,     6,     7,     8,     9,     0,    21,    11,
+      12,     4,    27,     6,     7,     8,     9,    20,    24,     3,
+       4,     3,     4,     3,     4,    28,    10,    20,    10,    24,
+      14,    22,    14,    27,    14,    24,    24,    24,    24,    23,
+      13,    23,     1,    23,    14,    15,    16,    17,    -1,    -1,
+      -1,    -1,    22,    -1,    -1,    -1,    26,    14,    15,    16,
+      17,    -1,    -1,    -1,    -1,    22,    -1,    -1,    -1,    26,
+      14,    15,    16,    17,    -1,    -1,    -1,    -1,    22,    -1,
+      -1,    -1,    26,    14,    15,    16,    17,    -1,    -1,    -1,
+      -1,    22,    -1,    -1,    -1,    26,    14,    15,    16,    17,
+      14,    15,    16,    17,    22,    -1,    24,    -1,    22,    -1,
+      24,    14,    15,    16,    17,    14,    15,    16,    17,    22,
+      -1,    24,    -1,    22
 };
 
   /* YYSTOS[STATE-NUM] -- The (internal number of the) accessing
      symbol of state STATE-NUM.  */
 static const yytype_uint8 yystos[] =
 {
-       0,    28,     0,     4,     6,     7,     8,     9,    17,    29,
-      31,    32,    33,    34,    36,    21,    19,    19,    19,    19,
-      18,    18,    18,     3,     4,    11,    19,    30,    10,    30,
-      10,    30,    30,    30,    30,    30,    11,    12,    13,    14,
-      15,    20,    22,    20,    22,    22,    22,    20,    30,    30,
-      30,    30,    30,    23,    24,    23,    24,    30,    30,    20,
-      20,    20,    20,    20,    20,    25,    25,    29,    35,    35,
-      26,    26
+       0,    30,     0,     4,     6,     7,     8,     9,    20,    31,
+      33,    34,    35,    36,    41,    25,    23,    23,    23,    37,
+      23,    42,    21,    21,    21,     3,     4,    14,    23,    32,
+      10,    32,    10,    32,    32,    27,    32,    27,    32,    32,
+      14,    15,    16,    17,    22,    24,    26,    24,    26,    26,
+      40,    26,    40,    24,    32,    32,    32,    32,    32,    11,
+      12,    11,    12,    32,    28,    31,    32,    28,    24,    24,
+      24,    24,    24,    13,    38,    39,    24,    27,    40,    28
 };
 
   /* YYR1[YYN] -- Symbol number of symbol that rule YYN derives.  */
 static const yytype_uint8 yyr1[] =
 {
-       0,    27,    28,    28,    29,    29,    29,    29,    29,    29,
-      30,    30,    30,    30,    30,    30,    30,    30,    30,    31,
-      32,    32,    32,    33,    33,    33,    34,    35,    35,    36
+       0,    29,    30,    30,    31,    31,    31,    31,    31,    31,
+      32,    32,    32,    32,    32,    32,    32,    32,    32,    33,
+      34,    34,    34,    35,    35,    35,    36,    37,    38,    38,
+      39,    40,    40,    41,    42
 };
 
   /* YYR2[YYN] -- Number of symbols on the right hand side of rule YYN.  */
@@ -595,7 +936,8 @@ static const yytype_uint8 yyr2[] =
 {
        0,     2,     0,     2,     1,     2,     2,     2,     1,     1,
        1,     1,     3,     3,     3,     3,     3,     2,     3,     3,
-       6,     6,     4,     6,     6,     4,     9,     0,     1,     9
+       6,     6,     4,     6,     6,     4,     6,     5,     0,     4,
+       1,     0,     2,     5,     5
 };
 
 
@@ -1271,162 +1613,353 @@ yyreduce:
   YY_REDUCE_PRINT (yyn);
   switch (yyn)
     {
-        case 5:
-#line 47 "asm4.y" /* yacc.c:1646  */
-    { }
-#line 1278 "asm4.tab.c" /* yacc.c:1646  */
+        case 3:
+#line 366 "asm4.y" /* yacc.c:1646  */
+    { check=0;}
+#line 1620 "asm4.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 5:
+#line 371 "asm4.y" /* yacc.c:1646  */
+    { check=0; }
+#line 1626 "asm4.tab.c" /* yacc.c:1646  */
     break;
 
   case 6:
-#line 48 "asm4.y" /* yacc.c:1646  */
-    { }
-#line 1284 "asm4.tab.c" /* yacc.c:1646  */
+#line 372 "asm4.y" /* yacc.c:1646  */
+    { check=0; }
+#line 1632 "asm4.tab.c" /* yacc.c:1646  */
     break;
 
   case 7:
-#line 49 "asm4.y" /* yacc.c:1646  */
-    { }
-#line 1290 "asm4.tab.c" /* yacc.c:1646  */
+#line 373 "asm4.y" /* yacc.c:1646  */
+    { check=0; }
+#line 1638 "asm4.tab.c" /* yacc.c:1646  */
     break;
 
   case 8:
-#line 50 "asm4.y" /* yacc.c:1646  */
-    { }
-#line 1296 "asm4.tab.c" /* yacc.c:1646  */
+#line 374 "asm4.y" /* yacc.c:1646  */
+    { check=0;
+												node *tmp = (node*)malloc(sizeof(node));
+												sprintf(tmp->data , "\nlabel%d:\n",pop());
+												//printf("\tmov\tr%d,eax\n",reg);
+												tmp->next = NULL;
+												if(hcode == NULL){
+													hcode = tmp;
+													tcode = tmp;
+												}
+												else{
+													tcode->next = tmp;
+													tcode = tcode->next;
+												} 
+											}
+#line 1657 "asm4.tab.c" /* yacc.c:1646  */
     break;
 
   case 9:
-#line 51 "asm4.y" /* yacc.c:1646  */
-    { }
-#line 1302 "asm4.tab.c" /* yacc.c:1646  */
+#line 388 "asm4.y" /* yacc.c:1646  */
+    { check=0;
+												node *tmp = (node*)malloc(sizeof(node));
+												int pop1=pop();
+												int pop2=pop();
+												sprintf(tmp->data , "\tpop\tecx\n\tloop\tlabel%d\nlabel%d:\n",pop1,pop2);
+												//printf("\tmov\tr%d,eax\n",reg);
+												tmp->next = NULL;
+												if(hcode == NULL){
+													hcode = tmp;
+													tcode = tmp;
+												}
+												else{
+													tcode->next = tmp;
+													tcode = tcode->next;
+												} 
+											}
+#line 1678 "asm4.tab.c" /* yacc.c:1646  */
     break;
 
   case 10:
-#line 58 "asm4.y" /* yacc.c:1646  */
-    { (yyval.intValue) = (yyvsp[0].intValue);}
-#line 1308 "asm4.tab.c" /* yacc.c:1646  */
+#line 408 "asm4.y" /* yacc.c:1646  */
+    { movValtoReg((yyvsp[0].intValue));
+  											(yyval.intValue) = (yyvsp[0].intValue);
+  										}
+#line 1686 "asm4.tab.c" /* yacc.c:1646  */
     break;
 
   case 11:
-#line 59 "asm4.y" /* yacc.c:1646  */
-    { (yyval.intValue) = var[(yyvsp[0].intValue)];}
-#line 1314 "asm4.tab.c" /* yacc.c:1646  */
+#line 411 "asm4.y" /* yacc.c:1646  */
+    { movVartoReg((yyvsp[0].intValue)-48);
+												(yyval.intValue) = var[(yyvsp[0].intValue)]; }
+#line 1693 "asm4.tab.c" /* yacc.c:1646  */
     break;
 
   case 12:
-#line 60 "asm4.y" /* yacc.c:1646  */
-    { (yyval.intValue) = (yyvsp[-2].intValue) + (yyvsp[0].intValue);      }
-#line 1320 "asm4.tab.c" /* yacc.c:1646  */
+#line 413 "asm4.y" /* yacc.c:1646  */
+    { add();
+											}
+#line 1700 "asm4.tab.c" /* yacc.c:1646  */
     break;
 
   case 13:
-#line 61 "asm4.y" /* yacc.c:1646  */
-    { (yyval.intValue) = (yyvsp[-2].intValue) - (yyvsp[0].intValue);      }
-#line 1326 "asm4.tab.c" /* yacc.c:1646  */
+#line 415 "asm4.y" /* yacc.c:1646  */
+    { sub(); 
+											}
+#line 1707 "asm4.tab.c" /* yacc.c:1646  */
     break;
 
   case 14:
-#line 62 "asm4.y" /* yacc.c:1646  */
-    { (yyval.intValue) = (yyvsp[-2].intValue) * (yyvsp[0].intValue);      }
-#line 1332 "asm4.tab.c" /* yacc.c:1646  */
+#line 417 "asm4.y" /* yacc.c:1646  */
+    { mul(); 
+											}
+#line 1714 "asm4.tab.c" /* yacc.c:1646  */
     break;
 
   case 15:
-#line 63 "asm4.y" /* yacc.c:1646  */
+#line 419 "asm4.y" /* yacc.c:1646  */
     { if((yyvsp[0].intValue)==0) {
-				error(2);  		/*check if divide by 0 */
-				checkerr =1;			
-			  }			  
-			  else
-				(yyval.intValue) = (yyvsp[-2].intValue) / (yyvsp[0].intValue);}
-#line 1343 "asm4.tab.c" /* yacc.c:1646  */
+													error(2);  		/*check if divide by 0 */
+													checkerr =1;			
+			  								}			  
+			  								else{
+													idiv();
+												}
+											}
+#line 1727 "asm4.tab.c" /* yacc.c:1646  */
     break;
 
   case 16:
-#line 69 "asm4.y" /* yacc.c:1646  */
+#line 427 "asm4.y" /* yacc.c:1646  */
     { if((yyvsp[0].intValue)==0) { 			/*check if modulo by 0 */
-				error(3); 
-				checkerr =1;			
-			  }			  
-			  else
-				(yyval.intValue) = (yyvsp[-2].intValue) % (yyvsp[0].intValue);}
-#line 1354 "asm4.tab.c" /* yacc.c:1646  */
+													error(3); 
+													checkerr =1;			
+												}			  
+												else
+													mod();
+											}
+#line 1739 "asm4.tab.c" /* yacc.c:1646  */
     break;
 
   case 17:
-#line 75 "asm4.y" /* yacc.c:1646  */
-    { (yyval.intValue) = -(yyvsp[0].intValue);          }
-#line 1360 "asm4.tab.c" /* yacc.c:1646  */
+#line 435 "asm4.y" /* yacc.c:1646  */
+    { neg();
+												 }
+#line 1746 "asm4.tab.c" /* yacc.c:1646  */
     break;
 
   case 18:
-#line 76 "asm4.y" /* yacc.c:1646  */
-    { (yyval.intValue) = (yyvsp[-1].intValue);           }
-#line 1366 "asm4.tab.c" /* yacc.c:1646  */
+#line 437 "asm4.y" /* yacc.c:1646  */
+    { (yyval.intValue) = (yyvsp[-1].intValue); }
+#line 1752 "asm4.tab.c" /* yacc.c:1646  */
     break;
 
   case 19:
-#line 81 "asm4.y" /* yacc.c:1646  */
-    { var[(yyvsp[-2].intValue)] = (yyvsp[0].intValue); }
-#line 1372 "asm4.tab.c" /* yacc.c:1646  */
+#line 442 "asm4.y" /* yacc.c:1646  */
+    { movRegtoVar((yyvsp[-2].intValue)-48);
+  											var[(yyvsp[-2].intValue)] = (yyvsp[0].intValue); }
+#line 1759 "asm4.tab.c" /* yacc.c:1646  */
     break;
 
   case 20:
-#line 85 "asm4.y" /* yacc.c:1646  */
-    { }
-#line 1378 "asm4.tab.c" /* yacc.c:1646  */
+#line 447 "asm4.y" /* yacc.c:1646  */
+    { node *tmp = (node*)malloc(sizeof(node));
+																					sprintf(tmp->data , "\tcall\t _printDec\n");
+																					//printf("\tmov\tr%d,eax\n",reg);
+																					tmp->next = NULL;
+																					if(hcode == NULL){
+																						hcode = tmp;
+																						tcode = tmp;
+																					}
+																					else{
+																						tcode->next = tmp;
+																						tcode = tcode->next;
+																					}
+																					checkfn[0] =1;
+																				}
+#line 1778 "asm4.tab.c" /* yacc.c:1646  */
     break;
 
   case 21:
-#line 86 "asm4.y" /* yacc.c:1646  */
-    { }
-#line 1384 "asm4.tab.c" /* yacc.c:1646  */
+#line 461 "asm4.y" /* yacc.c:1646  */
+    { node *tmp = (node*)malloc(sizeof(node));
+																					sprintf(tmp->data , "\tcall\t _printHex\n");
+																					//printf("\tmov\tr%d,eax\n",reg);
+																					tmp->next = NULL;
+																					if(hcode == NULL){
+																						hcode = tmp;
+																						tcode = tmp;
+																					}
+																					else{
+																						tcode->next = tmp;
+																						tcode = tcode->next;
+																					}
+																					checkfn[1] =1;
+																			  }
+#line 1797 "asm4.tab.c" /* yacc.c:1646  */
     break;
 
   case 22:
-#line 87 "asm4.y" /* yacc.c:1646  */
-    { }
-#line 1390 "asm4.tab.c" /* yacc.c:1646  */
+#line 475 "asm4.y" /* yacc.c:1646  */
+    { node *tmp1 = (node*)malloc(sizeof(node));
+																					sprintf(tmp1->data ,"\tmov\tecx,str%d\n\tmov\tedx,%d\n\tcall\t_printString\n",strNUM,strlen((yyvsp[-1].stringValue)));
+																					tmp1->next = NULL;
+																					if(hcode == NULL){
+																						hcode = tmp1;
+																						tcode = tmp1;
+																					}
+																					else{
+																						tcode->next = tmp1;
+																						tcode = tcode->next;
+																					}
+																					
+																					node *tmp = (node*)malloc(sizeof(node));
+																					sprintf(tmp->data ,"str%d\tdb\t\"%s\"\n",strNUM,(yyvsp[-1].stringValue));
+																					tmp->next = NULL;
+																					if(hdata == NULL){
+																						hdata = tmp;
+																						tdata = tmp;
+																					}
+																					else{
+																						tdata->next = tmp;
+																						tdata = tdata->next;
+																					}
+																					strNUM++;
+																					checkfn[2] =1;
+																				}
+#line 1828 "asm4.tab.c" /* yacc.c:1646  */
     break;
 
   case 23:
-#line 91 "asm4.y" /* yacc.c:1646  */
-    { }
-#line 1396 "asm4.tab.c" /* yacc.c:1646  */
+#line 505 "asm4.y" /* yacc.c:1646  */
+    { node *tmp = (node*)malloc(sizeof(node));
+																					sprintf(tmp->data , "\tcall\t _printDec\n\tcall\t _printLn\n");
+																					//printf("\tmov\treg%d,eax\n",reg);
+																					tmp->next = NULL;
+																					if(hcode == NULL){
+																						hcode = tmp;
+																						tcode = tmp;
+																					}
+																					else{
+																						tcode->next = tmp;
+																						tcode = tcode->next;
+																					}
+																					checkfn[0] =1;
+																					checkfn[2] =1;
+																					checkfn[3] =1;
+																			 }
+#line 1849 "asm4.tab.c" /* yacc.c:1646  */
     break;
 
   case 24:
-#line 92 "asm4.y" /* yacc.c:1646  */
-    { }
-#line 1402 "asm4.tab.c" /* yacc.c:1646  */
+#line 521 "asm4.y" /* yacc.c:1646  */
+    { node *tmp = (node*)malloc(sizeof(node));
+																					sprintf(tmp->data , "\tcall\t _printHex\n\tcall\t _printLn\n");
+																					//printf("\tmov\treg%d,eax\n",reg);
+																					tmp->next = NULL;
+																					if(hcode == NULL){
+																						hcode = tmp;
+																						tcode = tmp;
+																					}
+																					else{
+																						tcode->next = tmp;
+																						tcode = tcode->next;
+																					}
+																					checkfn[1] =1;
+																					checkfn[3] =1;
+																					
+																		  }
+#line 1870 "asm4.tab.c" /* yacc.c:1646  */
     break;
 
   case 25:
-#line 93 "asm4.y" /* yacc.c:1646  */
-    { }
-#line 1408 "asm4.tab.c" /* yacc.c:1646  */
+#line 537 "asm4.y" /* yacc.c:1646  */
+    { node *tmp1 = (node*)malloc(sizeof(node));
+																					sprintf(tmp1->data ,"\tmov\tecx,str%d\n\tmov\tedx,%d\n\tcall\t_printString\n\tcall\t _printLn\n",strNUM,strlen((yyvsp[-1].stringValue)));
+																					tmp1->next = NULL;
+																					if(hcode == NULL){
+																						hcode = tmp1;
+																						tcode = tmp1;
+																					}
+																					else{
+																						tcode->next = tmp1;
+																						tcode = tcode->next;
+																					}
+																					
+																					node *tmp = (node*)malloc(sizeof(node));
+																					sprintf(tmp->data ,"str%d\tdb\t\"%s\"\n",strNUM,(yyvsp[-1].stringValue));
+																					tmp->next = NULL;
+																					if(hdata == NULL){
+																						hdata = tmp;
+																						tdata = tmp;
+																					}
+																					else{
+																						tdata->next = tmp;
+																						tdata = tdata->next;
+																					}
+																					strNUM++;
+																					checkfn[2] =1;
+																					checkfn[3] =1; }
+#line 1901 "asm4.tab.c" /* yacc.c:1646  */
     break;
 
   case 26:
-#line 97 "asm4.y" /* yacc.c:1646  */
+#line 566 "asm4.y" /* yacc.c:1646  */
     { }
-#line 1414 "asm4.tab.c" /* yacc.c:1646  */
+#line 1907 "asm4.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 27:
+#line 569 "asm4.y" /* yacc.c:1646  */
+    {	check=0;
+ 																						conif((yyvsp[-3].intValue),(yyvsp[-1].intValue));
+																						push(labelNUM);	
+																						labelNUM++;}
+#line 1916 "asm4.tab.c" /* yacc.c:1646  */
     break;
 
   case 28:
-#line 102 "asm4.y" /* yacc.c:1646  */
+#line 575 "asm4.y" /* yacc.c:1646  */
     {}
-#line 1420 "asm4.tab.c" /* yacc.c:1646  */
+#line 1922 "asm4.tab.c" /* yacc.c:1646  */
     break;
 
   case 29:
-#line 106 "asm4.y" /* yacc.c:1646  */
+#line 576 "asm4.y" /* yacc.c:1646  */
     { }
-#line 1426 "asm4.tab.c" /* yacc.c:1646  */
+#line 1928 "asm4.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 30:
+#line 579 "asm4.y" /* yacc.c:1646  */
+    { check=0;
+															conelse();
+													 		push(labelNUM);	
+  														labelNUM++; }
+#line 1937 "asm4.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 32:
+#line 588 "asm4.y" /* yacc.c:1646  */
+    {  }
+#line 1943 "asm4.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 33:
+#line 592 "asm4.y" /* yacc.c:1646  */
+    {  }
+#line 1949 "asm4.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 34:
+#line 595 "asm4.y" /* yacc.c:1646  */
+    {			check=0;
+ 														loop();
+  													
+  													labelNUM++;
+  										}
+#line 1959 "asm4.tab.c" /* yacc.c:1646  */
     break;
 
 
-#line 1430 "asm4.tab.c" /* yacc.c:1646  */
+#line 1963 "asm4.tab.c" /* yacc.c:1646  */
       default: break;
     }
   /* User semantic actions sometimes alter yychar, and that requires
@@ -1654,7 +2187,7 @@ yyreturn:
 #endif
   return yyresult;
 }
-#line 108 "asm4.y" /* yacc.c:1906  */
+#line 602 "asm4.y" /* yacc.c:1906  */
 
 
 void yyerror(char *s) 
@@ -1683,10 +2216,25 @@ void error(int error) /* error checking */
 	}
 }
 
-int main(){
-	printf("> ");
-	while(1)
-		yyparse();
+int main(int argc,char** argv){
+	
+	if(argc>1){
+		FILE *fp=fopen(argv[1],"r");
+		if(!fp){
+			printf("file not found\n");
+			exit(1);
+		}
+		yyin = fp;
+	}
+	else{
+		printf("No input file");
+		exit(1);
+	}
+	
+	init();
+	yyparse();
+	print();
+	
 	return 0;
 }
 

@@ -53,7 +53,10 @@ extern int yydebug;
     IF = 263,
     LOOP = 264,
     STRING = 265,
-    NEG = 266
+    DEC = 266,
+    HEX = 267,
+    ELSE = 268,
+    NEG = 269
   };
 #endif
 
@@ -62,12 +65,12 @@ extern int yydebug;
 
 union YYSTYPE
 {
-#line 22 "asm4.y" /* yacc.c:1909  */
+#line 347 "asm4.y" /* yacc.c:1909  */
 
     int intValue;
     char *stringValue;
 
-#line 71 "asm4.tab.h" /* yacc.c:1909  */
+#line 74 "asm4.tab.h" /* yacc.c:1909  */
 };
 
 typedef union YYSTYPE YYSTYPE;
