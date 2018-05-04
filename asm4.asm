@@ -33,6 +33,138 @@ section .text
 global _start
 
 _start:
+	mov	eax,1
+	mov	[reg1],eax
+	mov	eax,2
+	mov	[reg2],eax
+	mov	eax,3
+	mov	[reg3],eax
+	mov	eax,4
+	mov	[reg4],eax
+	mov	eax,5
+	mov	[reg5],eax
+	mov	eax,6
+	mov	[reg6],eax
+	mov	eax,7
+	mov	[reg7],eax
+	mov	eax,8
+	mov	[reg8],eax
+	mov	eax,9
+	mov	[reg9],eax
+	mov	eax,10
+	mov	[reg10],eax
+	mov	eax,11
+	mov	[reg11],eax
+	mov	eax,12
+	mov	[reg12],eax
+	mov	eax,13
+	mov	[reg13],eax
+	mov	eax,14
+	mov	[reg14],eax
+	mov	eax,15
+	mov	[reg15],eax
+	mov	eax,16
+	mov	[reg16],eax
+	mov	eax,17
+	mov	[reg17],eax
+	mov	eax,18
+	mov	[reg18],eax
+	mov	eax,19
+	mov	[reg19],eax
+	mov	eax,20
+	mov	[reg20],eax
+	mov	eax,21
+	mov	[reg21],eax
+	mov	eax,22
+	mov	[reg22],eax
+	mov	eax,23
+	mov	[reg23],eax
+	mov	eax,24
+	mov	[reg24],eax
+	mov	eax,25
+	mov	[reg25],eax
+	mov	eax,[reg0]
+	call	 _printDec
+	call	 _printLn
+	mov	eax,[reg1]
+	call	 _printDec
+	call	 _printLn
+	mov	eax,[reg2]
+	call	 _printDec
+	call	 _printLn
+	mov	eax,[reg3]
+	call	 _printDec
+	call	 _printLn
+	mov	eax,[reg4]
+	call	 _printDec
+	call	 _printLn
+	mov	eax,[reg5]
+	call	 _printDec
+	call	 _printLn
+	mov	eax,[reg6]
+	call	 _printDec
+	call	 _printLn
+	mov	eax,[reg7]
+	call	 _printDec
+	call	 _printLn
+	mov	eax,[reg8]
+	call	 _printDec
+	call	 _printLn
+	mov	eax,[reg9]
+	call	 _printDec
+	call	 _printLn
+	mov	eax,[reg10]
+	call	 _printDec
+	call	 _printLn
+	mov	eax,[reg11]
+	call	 _printDec
+	call	 _printLn
+	mov	eax,[reg12]
+	call	 _printDec
+	call	 _printLn
+	mov	eax,[reg13]
+	call	 _printDec
+	call	 _printLn
+	mov	eax,[reg14]
+	call	 _printDec
+	call	 _printLn
+	mov	eax,[reg15]
+	call	 _printDec
+	call	 _printLn
+	mov	eax,[reg16]
+	call	 _printDec
+	call	 _printLn
+	mov	eax,[reg17]
+	call	 _printDec
+	call	 _printLn
+	mov	eax,[reg18]
+	call	 _printDec
+	call	 _printLn
+	mov	eax,[reg19]
+	call	 _printDec
+	call	 _printLn
+	mov	eax,[reg20]
+	call	 _printDec
+	call	 _printLn
+	mov	eax,[reg21]
+	call	 _printDec
+	call	 _printLn
+	mov	eax,[reg22]
+	call	 _printDec
+	call	 _printLn
+	mov	eax,[reg23]
+	call	 _printDec
+	call	 _printLn
+	mov	eax,[reg24]
+	call	 _printDec
+	call	 _printLn
+	mov	eax,[reg25]
+	call	 _printDec
+	call	 _printLn
+	mov	ecx,str1
+	mov	edx,0
+	call	_printString
+	call	 _printLn
 	mov	eax,5
 	mov	[reg2],eax
 	mov	eax,[reg1]
@@ -61,7 +193,7 @@ label2:
 	inc	ecx
 label4:
 	push	ecx
-	mov	ecx,str1
+	mov	ecx,str2
 	mov	edx,1
 	call	_printString
 	pop	ecx
@@ -74,7 +206,7 @@ label3:
 	pop	eax
 	add	eax,ebx
 	mov	[reg1],eax
-	mov	ecx,str2
+	mov	ecx,str3
 	mov	edx,0
 	call	_printString
 	call	 _printLn
@@ -113,7 +245,7 @@ label6:
 	inc	ecx
 label8:
 	push	ecx
-	mov	ecx,str3
+	mov	ecx,str4
 	mov	edx,1
 	call	_printString
 	pop	ecx
@@ -126,19 +258,15 @@ label7:
 	pop	eax
 	sub	eax,ebx
 	mov	[reg3],eax
-	mov	ecx,str4
+	mov	ecx,str5
 	mov	edx,0
 	call	_printString
 	call	 _printLn
 	pop	ecx
 	loop	label6
 label5:
-	mov	ecx,str5
-	mov	edx,0
-	call	_printString
-	call	 _printLn
 	mov	ecx,str6
-	mov	edx,21
+	mov	edx,0
 	call	_printString
 	call	 _printLn
 	mov	ecx,str7
@@ -146,11 +274,11 @@ label5:
 	call	_printString
 	call	 _printLn
 	mov	ecx,str8
-	mov	edx,18
+	mov	edx,21
 	call	_printString
 	call	 _printLn
 	mov	ecx,str9
-	mov	edx,21
+	mov	edx,18
 	call	_printString
 	call	 _printLn
 	mov	ecx,str10
@@ -158,14 +286,18 @@ label5:
 	call	_printString
 	call	 _printLn
 	mov	ecx,str11
-	mov	edx,18
-	call	_printString
-	call	 _printLn
-	mov	ecx,str12
 	mov	edx,21
 	call	_printString
 	call	 _printLn
+	mov	ecx,str12
+	mov	edx,18
+	call	_printString
+	call	 _printLn
 	mov	ecx,str13
+	mov	edx,21
+	call	_printString
+	call	 _printLn
+	mov	ecx,str14
 	mov	edx,21
 	call	_printString
 	call	 _printLn
@@ -182,9 +314,13 @@ label5:
 	mov	eax,5
 	mov	[reg5],eax
 	mov	eax,6
-	mov	[reg1],eax
+	mov	[reg10],eax
 	mov	eax,7
-	mov	[reg1],eax
+	mov	[reg11],eax
+	mov	ecx,str15
+	mov	edx,0
+	call	_printString
+	call	 _printLn
 	mov	eax,[reg6]
 	push	eax
 	mov	eax,1
@@ -226,14 +362,6 @@ label5:
 	jmp	label12
 
 label11:
-	mov	ecx,str14
-	mov	edx,60
-	call	_printString
-	call	 _printLn
-	mov	ecx,str15
-	mov	edx,60
-	call	_printString
-	call	 _printLn
 	mov	ecx,str16
 	mov	edx,60
 	call	_printString
@@ -266,6 +394,14 @@ label11:
 	mov	edx,60
 	call	_printString
 	call	 _printLn
+	mov	ecx,str24
+	mov	edx,60
+	call	_printString
+	call	 _printLn
+	mov	ecx,str25
+	mov	edx,60
+	call	_printString
+	call	 _printLn
 
 label12:
 
@@ -274,7 +410,49 @@ label10:
 label9:
 	mov	eax,1
 	int	0x80
-_printString:
+_printDec:
+	pushad
+	mov	dword[ct1],0
+	mov	edi,decstr
+	add	edi,9
+	xor	edx,edx
+
+	push	0
+	cmp	eax,0
+	jge	whileNotZeroD
+	pop	ebx
+	push	'-'
+	neg	eax
+whileNotZeroD:
+	mov	ebx,10
+	div	ebx
+	add	edx,'0'
+	mov	byte[edi],dl
+	dec	edi
+	inc	dword[ct1]
+	xor	edx,edx
+	cmp	eax,0
+	jne	whileNotZeroD
+	pop	edx
+	cmp	edx,0
+	je	skip
+
+	mov	byte[edi],dl
+	dec	edi
+	inc	dword[ct1]
+	xor	edx,edx
+
+skip:
+	inc	edi
+	mov	ecx, edi
+	mov	edx,[ct1]
+	mov	eax, 4
+	mov	ebx, 1
+	int	0x80
+
+	popad
+	ret
+ _printString:
 	push	eax
 	push	ebx
 
@@ -297,27 +475,29 @@ _printLn:
 	pop	ecx
 	ret
 section .data
-str1	db	"*"
-str2	db	""
-str3	db	"*"
-str4	db	""
+str1	db	""
+str2	db	"*"
+str3	db	""
+str4	db	"*"
 str5	db	""
-str6	db	"*****  ******  ******"
-str7	db	" ***  *******  ******"
-str8	db	" ***  ***      ***"
-str9	db	" ***  ***      ******"
+str6	db	""
+str7	db	"*****  ******  ******"
+str8	db	" ***  *******  ******"
+str9	db	" ***  ***      ***"
 str10	db	" ***  ***      ******"
-str11	db	" ***  ***      ***"
-str12	db	" ***  *******  ******"
-str13	db	"*****  ******  ******"
-str14	db	"░▄▀▄▀▀▀▀▄▀▄░░░░░░░░░"
-str15	db	"░█░░░░░░░░▀▄░░░░░░▄░"
-str16	db	"█░░▀░░▀░░░░░▀▄▄░░█░█"
-str17	db	"█░▄░█▀░▄░░░░░░░▀▀░░█"
-str18	db	"█░░▀▀▀▀░░░░░░░░░░░░█"
-str19	db	"█░░░░░░░░░░░░░░░░░░█"
-str20	db	"█░░░░░░░░░░░░░░░░░░█"
-str21	db	"░█░░▄▄░░▄▄▄▄░░▄▄░░█░"
-str22	db	"░█░▄▀█░▄▀░░█░▄▀█░▄▀░"
-str23	db	"░░▀░░░▀░░░░░▀░░░▀░░░"
+str11	db	" ***  ***      ******"
+str12	db	" ***  ***      ***"
+str13	db	" ***  *******  ******"
+str14	db	"*****  ******  ******"
+str15	db	""
+str16	db	"░▄▀▄▀▀▀▀▄▀▄░░░░░░░░░"
+str17	db	"░█░░░░░░░░▀▄░░░░░░▄░"
+str18	db	"█░░▀░░▀░░░░░▀▄▄░░█░█"
+str19	db	"█░▄░█▀░▄░░░░░░░▀▀░░█"
+str20	db	"█░░▀▀▀▀░░░░░░░░░░░░█"
+str21	db	"█░░░░░░░░░░░░░░░░░░█"
+str22	db	"█░░░░░░░░░░░░░░░░░░█"
+str23	db	"░█░░▄▄░░▄▄▄▄░░▄▄░░█░"
+str24	db	"░█░▄▀█░▄▀░░█░▄▀█░▄▀░"
+str25	db	"░░▀░░░▀░░░░░▀░░░▀░░░"
 nl	db	10

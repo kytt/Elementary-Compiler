@@ -410,7 +410,7 @@ static yyconst YY_CHAR yy_ec[256] =
         1,   13,    1,    1,    1,    1,   10,   10,   14,   15,
 
        16,   17,    1,   18,   19,    1,    1,   20,    1,   21,
-       22,   23,    1,   24,   25,   26,    1,   27,    1,   28,
+       22,   23,    1,   24,   25,   26,    1,    1,    1,   27,
         1,    1,    5,    1,    5,    1,    1,    1,    1,    1,
         1,    1,    1,    1,    1,    1,    1,    1,    1,    1,
         1,    1,    1,    1,    1,    1,    1,    1,    1,    1,
@@ -428,20 +428,20 @@ static yyconst YY_CHAR yy_ec[256] =
         1,    1,    1,    1,    1
     } ;
 
-static yyconst YY_CHAR yy_meta[29] =
+static yyconst YY_CHAR yy_meta[28] =
     {   0,
         1,    1,    1,    1,    1,    1,    1,    1,    1,    1,
         1,    1,    1,    1,    1,    1,    1,    1,    1,    1,
-        1,    1,    1,    1,    1,    1,    1,    1
+        1,    1,    1,    1,    1,    1,    1
     } ;
 
 static yyconst flex_uint16_t yy_base[48] =
     {   0,
-        0,    0,   81,   82,   82,   82,   25,   82,   33,   24,
-       76,   63,   58,   61,   59,   53,   50,   28,   41,   82,
-       70,    0,    0,   82,   42,   58,   46,   42,   82,   47,
-       49,   82,   50,   54,    0,   51,   82,   43,   44,   82,
-       82,   38,   43,   32,   82,   82,   51
+        0,    0,   80,   81,   81,   81,   24,   81,   32,   23,
+       75,   62,   57,   60,   58,   52,   49,   27,   40,   81,
+       69,    0,    0,   81,   41,   57,   45,   42,   81,   46,
+       48,   81,   49,   53,    0,   50,   81,   42,   43,   81,
+       81,   37,   42,   31,   81,   81,   50
     } ;
 
 static yyconst flex_int16_t yy_def[48] =
@@ -453,36 +453,36 @@ static yyconst flex_int16_t yy_def[48] =
        46,   46,   46,   46,   46,    0,   46
     } ;
 
-static yyconst flex_uint16_t yy_nxt[111] =
+static yyconst flex_uint16_t yy_nxt[109] =
     {   0,
         4,    5,    6,    7,    8,    9,    9,    9,    9,   10,
         4,   11,    4,   10,   12,   13,   10,   14,   15,   16,
-        4,    4,   17,    4,    4,    4,   18,    4,   20,   23,
-       23,   23,   23,   32,   33,   34,   32,   21,   22,   22,
-       22,   22,   23,   24,   20,   20,   23,   23,   23,   23,
-       24,   19,   45,   21,   21,   32,   32,   32,   32,   32,
-       32,   32,   44,   43,   42,   41,   40,   39,   38,   37,
-       36,   35,   46,   31,   30,   29,   28,   27,   26,   25,
-       46,    3,   46,   46,   46,   46,   46,   46,   46,   46,
-       46,   46,   46,   46,   46,   46,   46,   46,   46,   46,
-
-       46,   46,   46,   46,   46,   46,   46,   46,   46,   46
-    } ;
-
-static yyconst flex_int16_t yy_chk[111] =
-    {   0,
-        1,    1,    1,    1,    1,    1,    1,    1,    1,    1,
-        1,    1,    1,    1,    1,    1,    1,    1,    1,    1,
-        1,    1,    1,    1,    1,    1,    1,    1,    7,   10,
-       10,   10,   10,   18,   18,   18,   18,    7,    9,    9,
-        9,    9,    9,    9,   19,   25,    9,    9,    9,    9,
-        9,   47,   44,   19,   25,   33,   33,   33,   33,   34,
-       34,   34,   43,   42,   39,   38,   36,   31,   30,   28,
-       27,   26,   21,   17,   16,   15,   14,   13,   12,   11,
+        4,    4,   17,   18,    4,    4,    4,   20,   23,   23,
+       23,   23,   32,   33,   34,   32,   21,   22,   22,   22,
+       22,   23,   24,   20,   20,   23,   23,   23,   23,   24,
+       19,   45,   21,   21,   32,   32,   32,   32,   32,   32,
+       32,   44,   43,   42,   41,   40,   39,   38,   37,   36,
+       35,   46,   31,   30,   29,   28,   27,   26,   25,   46,
         3,   46,   46,   46,   46,   46,   46,   46,   46,   46,
        46,   46,   46,   46,   46,   46,   46,   46,   46,   46,
 
-       46,   46,   46,   46,   46,   46,   46,   46,   46,   46
+       46,   46,   46,   46,   46,   46,   46,   46
+    } ;
+
+static yyconst flex_int16_t yy_chk[109] =
+    {   0,
+        1,    1,    1,    1,    1,    1,    1,    1,    1,    1,
+        1,    1,    1,    1,    1,    1,    1,    1,    1,    1,
+        1,    1,    1,    1,    1,    1,    1,    7,   10,   10,
+       10,   10,   18,   18,   18,   18,    7,    9,    9,    9,
+        9,    9,    9,   19,   25,    9,    9,    9,    9,    9,
+       47,   44,   19,   25,   33,   33,   33,   33,   34,   34,
+       34,   43,   42,   39,   38,   36,   31,   30,   28,   27,
+       26,   21,   17,   16,   15,   14,   13,   12,   11,    3,
+       46,   46,   46,   46,   46,   46,   46,   46,   46,   46,
+       46,   46,   46,   46,   46,   46,   46,   46,   46,   46,
+
+       46,   46,   46,   46,   46,   46,   46,   46
     } ;
 
 static yy_state_type yy_last_accepting_state;
@@ -765,7 +765,7 @@ yy_match:
 			yy_current_state = yy_nxt[yy_base[yy_current_state] + (unsigned int) yy_c];
 			++yy_cp;
 			}
-		while ( yy_base[yy_current_state] != 82 );
+		while ( yy_base[yy_current_state] != 81 );
 
 yy_find_action:
 		yy_act = yy_accept[yy_current_state];
@@ -793,7 +793,7 @@ case 1:
 /* rule 1 can match eol */
 YY_RULE_SETUP
 #line 22 "asm4.l"
-; 			             /* Ignore */
+;                        /* Ignore */
 	YY_BREAK
 case 2:
 YY_RULE_SETUP
@@ -823,7 +823,7 @@ YY_RULE_SETUP
 case 7:
 YY_RULE_SETUP
 #line 28 "asm4.l"
-{ yylval.intValue = yytext[1]; return REG;}        /* Variable Token ($rA-$rZ) */
+{ yylval.intValue = yylval.intValue = str_to_dec(yytext); return REG;}        /* Variable Token ($rA-$rZ) */
 	YY_BREAK
 case 8:
 YY_RULE_SETUP
@@ -1871,6 +1871,28 @@ void yyfree (void * ptr )
 
 
 
+int str_to_dec(char *str) /* convert hexadecimal to decimal */
+{
+    long long decimalNumber=0;
+    char digits[10] = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9'};
+    int i, j, power=0 ;
+
+    /* Converting hexadecimal number to decimal number */
+    for(i=strlen(str)-1; i > 0; i--)
+    {
+        /*search current character in hexDigits array */
+ 	for(j=0; j<10; j++)
+        {
+            if(str[i]==digits[j])
+            {
+                decimalNumber += j*pow(10, power);
+            }
+        }
+        power++;
+    }
+    return decimalNumber;
+}
+
 /*function*/
 int hex_to_dec(char *hex) /* convert hexadecimal to decimal */
 {
@@ -1895,6 +1917,4 @@ int hex_to_dec(char *hex) /* convert hexadecimal to decimal */
     }
     return decimalNumber;
 }
-
-
 

@@ -352,7 +352,7 @@ void loop(){
 %start  input
 %token  NUM REG UNK PRINT PRINTLN IF LOOP STRING DEC HEX ELSE/* tokens */
 %left   '-' '+'
-%left   '*' '/' '\\'
+%left   '*' '/' '%'
 %precedence NEG       /* negation--unary minus */
 
 %type<intValue> NUM exp REG  
@@ -408,7 +408,7 @@ exp: /* expressions */
   NUM 			{ movValtoReg($1);
   				$$ = $1;
   			}
-| REG			{ movVartoReg($1-48);
+| REG			{ movVartoReg($1);
 				$$ = var[$1]; }
 | exp '+' exp        	{ add();
 			}
@@ -440,7 +440,7 @@ exp: /* expressions */
 
 
 assign: /*assign value to register*/
-  REG '=' exp		{ movRegtoVar($1-48);
+  REG '=' exp		{ movRegtoVar($1);
   			  var[$1] = $3; }
 ;
 
