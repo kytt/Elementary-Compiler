@@ -1,1 +1,22 @@
-r1 = r1 + 1
+print("Prime Numbers are : ");
+r1 = 2;
+r4 = 2;
+r5 = 0;
+
+loop(2, 97){
+	loop(2, r1){
+		r3 = r1 % r4;
+		if(r3, 0){
+			r5 = r5 + 1;
+		}
+		r4 = r4 + 1;
+	}
+	if(r5, 1){
+		print(r1, dec);
+		print(" ");
+	}
+	r5 = 0;
+	r4 = 2;
+	r1 = r1 + 1;
+}
+println("");

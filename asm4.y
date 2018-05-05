@@ -204,7 +204,7 @@ void mul(){
 }
 void idiv(){
 	node *tmp = (node*)malloc(sizeof(node));
-	sprintf(tmp->data , "\tmov\tebx,eax\n\tpop\teax\n\tidiv\tebx\n");	
+	sprintf(tmp->data , "\txor\tedx,edx\n\tmov\tebx,eax\n\tpop\teax\n\tidiv\tebx\n");	
 	//printf("\tmov\tebx,eax\n\tpop\teax\n\tidiv\tebx\n");
 	tmp->next = NULL;
 	tcode->next = tmp;
@@ -212,7 +212,7 @@ void idiv(){
 }
 void mod(){
 	node *tmp = (node*)malloc(sizeof(node));
-	sprintf(tmp->data , "\tmov\tebx,eax\n\tpop\teax\n\tidiv\tebx\n\tmov\teax,edx\n");	
+	sprintf(tmp->data , "\txor\tedx,edx\n\tmov\tebx,eax\n\tpop\teax\n\tidiv\tebx\n\tmov\teax,edx\n");	
 	//printf("\tmov\tebx,eax\n\tpop\teax\n\tidiv\tebx\n\tmov\teax,edx\n");
 	tmp->next = NULL;
 	tcode->next = tmp;
@@ -389,11 +389,12 @@ line: /* map stack operation or expression*/
 			tcode = tcode->next;
 		} 
 		}
-		| loop								{ check=0;
+| loop		{ check=0;
 		node *tmp = (node*)malloc(sizeof(node));
 		int pop1=pop();
 		int pop2=pop();
-		sprintf(tmp->data , "\tpop\tecx\n\tloop\tlabel%d\nlabel%d:\n",pop1,pop2);
+		sprintf(tmp->data , "\tpop\tecx\n\tdec\tecx\n\tjnz\tlabel%d\nlabel%d:\n",pop1,pop2);
+		//sprintf(tmp->data , "\tpop\tecx\n\tloop\tlabel%d\nlabel%d:\n",pop1,pop2);
 		//printf("\tmov\tr%d,eax\n",reg);
 		tmp->next = NULL;
 		if(hcode == NULL){
@@ -460,13 +461,13 @@ assign: /*assign value to register*/
 ;
 
 print: /*print*/
-   PRINT '(' ')'		{ yyerror("EXPECTED PRINT(EXP)"); }
+  PRINT '(' ')'		{ yyerror("EXPECTED PRINT(EXP)"); }
 |  PRINT  exp ','  DEC ')'      { yyerror("MISSING '('"); }
 |  PRINT '(' exp  DEC ')'       { yyerror("MISSING ','"); }
 |  PRINT '(' exp ','  DEC       { yyerror("MISSING ')'"); }
 |  PRINT '('  ','  DEC ')'      { yyerror("EXPECTED PRINT(EXP, DEC)"); }
 |  PRINT '(' exp ','   ')'      { yyerror("EXPECTED PRINT(EXP, [DEC/HEX])"); }
-|  PRINT '(' exp ','  DEC ')'	{ node *tmp = (node*)malloc(sizeof(node));
+|   PRINT '(' exp ',' DEC ')'	{ node *tmp = (node*)malloc(sizeof(node));
 				sprintf(tmp->data , "\tcall\t _printDec\n");
 				//printf("\tmov\tr%d,eax\n",reg);
 				tmp->next = NULL;
@@ -478,12 +479,12 @@ print: /*print*/
 					tcode->next = tmp;
 					tcode = tcode->next;
 				}
-				checkfn[0] =1; }
+				checkfn[0] =1; }/*
    PRINT  exp ','  HEX ')'      { yyerror("MISSING '('"); }
 |  PRINT '(' exp  HEX ')'       { yyerror("MISSING ','"); }
 |  PRINT '(' exp ','  HEX       { yyerror("MISSING ')'"); }
-|  PRINT '('  ','  HEX ')'      { yyerror("EXPECTED PRINT(EXP, HEX)"); }				
-| PRINT '(' exp ','  HEX ')' 	{ node *tmp = (node*)malloc(sizeof(node));
+|  PRINT '('  ','  HEX ')'      { yyerror("EXPECTED PRINT(EXP, HEX)"); }*/				
+|  PRINT '(' exp ','  HEX ')' 	{ node *tmp = (node*)malloc(sizeof(node));
 				sprintf(tmp->data , "\tcall\t _printHex\n");
 				//printf("\tmov\tr%d,eax\n",reg);
 				tmp->next = NULL;
@@ -495,9 +496,9 @@ print: /*print*/
 					tcode->next = tmp;
 					tcode = tcode->next;
 				}
-				checkfn[1] =1; }
+				checkfn[1] =1; }/*
 |  PRINT   STRING ')'      { yyerror("MISSING '('"); }
-|  PRINT '('  STRING       { yyerror("MISSING ')'"); }
+|  PRINT '('  STRING       { yyerror("MISSING ')'"); }*/
 |  PRINT '('  STRING ')' 	{ node *tmp1 = (node*)malloc(sizeof(node));
 				sprintf(tmp1->data ,"\tmov\tecx,str%d\n\tmov\tedx,%d\n\tcall\t_printString\n",strNUM,strlen($3));
 				tmp1->next = NULL;
@@ -526,13 +527,13 @@ print: /*print*/
 ;
 
 println: /*print line*/
-   PRINTLN '(' ')'		{ yyerror("EXPECTED PRINTLN(EXP)"); }
+   PRINTLN '(' ')'		  { yyerror("EXPECTED PRINTLN(EXP)"); }
 |  PRINTLN  exp ','  DEC ')'      { yyerror("MISSING '('"); }
 |  PRINTLN '(' exp  DEC ')'       { yyerror("MISSING ','"); }
 |  PRINTLN '(' exp ','  DEC       { yyerror("MISSING ')'"); }
 |  PRINTLN '('  ','  DEC ')'      { yyerror("EXPECTED PRINTLN(EXP, DEC)"); }
 |  PRINTLN '(' exp ','   ')'      { yyerror("EXPECTED PRINTLN(EXP, [DEC/HEX])"); }
-   PRINTLN '(' exp ','  DEC ')' 	{ node *tmp = (node*)malloc(sizeof(node));
+|  PRINTLN '(' exp ','  DEC ')' 	{ node *tmp = (node*)malloc(sizeof(node));
 				sprintf(tmp->data , "\tcall\t _printDec\n\tcall\t _printLn\n");
 				//printf("\tmov\treg%d,eax\n",reg);
 				tmp->next = NULL;
@@ -547,12 +548,12 @@ println: /*print line*/
 				checkfn[0] =1;
 				checkfn[2] =1;
 				checkfn[3] =1; }
-   PRINTLN  exp ','  HEX ')'      { yyerror("MISSING '('"); }
+|  PRINTLN  exp ','  HEX ')'      { yyerror("MISSING '('"); }
 |  PRINTLN '(' exp  HEX ')'       { yyerror("MISSING ','"); }
 |  PRINTLN '(' exp ','  HEX       { yyerror("MISSING ')'"); }
 |  PRINTLN '('  ','  HEX ')'      { yyerror("EXPECTED PRINTLN(EXP, HEX)"); }
 |  PRINTLN '(' exp ','  HEX ')' 	{ node *tmp = (node*)malloc(sizeof(node));
-				sprintf(tmp->data , "\tcall\t _printHex\n\tcall\t _printLn\n");
+				sprintf(tmp->data , "\tcall\t _printDec\n\tcall\t _printLn\n");
 				//printf("\tmov\treg%d,eax\n",reg);
 				tmp->next = NULL;
 				if(hcode == NULL){
@@ -600,10 +601,10 @@ if:
 |  IF if_compare '{' stmt  else         { yyerror("MISSING '}'"); }
 |  IF if_compare '{' stmt '}' else 	{ }
 ;
-if_compare:
+if_compare:/*
     exp ',' exp ')'             { yyerror("MISSING '('"); }
 |  '(' exp  exp ')'             { yyerror("MISSING ','"); }
-|  '(' exp ',' exp              { yyerror("MISSING ')'"); }
+|  '(' exp ',' exp              { yyerror("MISSING ')'"); }*/
 |  '('  ',' exp ')'             { yyerror("EXPECTED IF(EXP, EXP)"); }
 |  '(' exp ','  ')'             { yyerror("EXPECTED IF(EXP, EXP)"); }
 |  '('  ','  ')'            	{ yyerror("EXPECTED IF(EXP, EXP)"); }
@@ -639,21 +640,21 @@ loop:
 ;
 
 loop_compare:
-    exp ',' exp ')'  		{ yyerror("MISSING '('"); }
+   '(' exp ',' exp ')' 		{ check=0;
+			  	  loop();
+			  	  labelNUM++; }/*
+|   exp ',' exp ')'  		{ yyerror("MISSING '('"); }
 |  '(' exp  exp ')'  		{ yyerror("MISSING ','"); }
-|  '(' exp ',' exp 	  	{ yyerror("MISSING ')'"); }
+|  '(' exp ',' exp 	  	{ yyerror("MISSING ')'"); }*/
 |  '('  ','  ')'            	{ yyerror("EXPECTED LOOP(EXP, EXP)"); }
-|  '('   ')'            	{ yyerror("EXPECTED LOOP(EXP, EXP)"); }
-|  '(' exp ',' exp ')' 		{ check=0;
- 				  loop();
-  				  labelNUM++; }
+|  '('   ')'            	{ yyerror("EXPECTED LOOP(EXP, EXP)"); } 
 ;
 
 %%
 
 void yyerror(char *s) /* error checking */
 {
-	fprintf(stderr, "line : %d : %s\n", yylineno, s);
+	fprintf(stderr, "line : %d : %s\n", yylineno - 1, s);
 }
 
 int main(int argc,char** argv){
