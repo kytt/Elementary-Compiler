@@ -1,5 +1,7 @@
 all:	asm4.exe
 
+.PHONY: asm4.tab.c asm4.tab.h
+
 asm4.tab.c asm4.tab.h:	asm4.y
 	@bison -d asm4.y --warnings=none
 

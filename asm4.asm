@@ -33,9 +33,13 @@ section .text
 global _start
 
 _start:
-	pop	ecx
-	loop	label0
-label0:
+	mov	eax,[reg1]
+	push	eax
+	mov	eax,1
+	mov	ebx,eax
+	pop	eax
+	add	eax,ebx
+	mov	[reg1],eax
 	mov	eax,1
 	int	0x80
 section .data
